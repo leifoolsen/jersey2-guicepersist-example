@@ -45,13 +45,11 @@ public class UserResourceTest {
         User u2 = new User("U2", "u2u2", true);
         idU2 = u2.getId();
 
-        Response response = target
-                .path(UserResource.RESOURCE_PATH)
+        target.path(UserResource.RESOURCE_PATH)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(u1, MediaType.APPLICATION_JSON_TYPE));
 
-        response = target
-                .path(UserResource.RESOURCE_PATH)
+        target.path(UserResource.RESOURCE_PATH)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(u2, MediaType.APPLICATION_JSON_TYPE));
     }
