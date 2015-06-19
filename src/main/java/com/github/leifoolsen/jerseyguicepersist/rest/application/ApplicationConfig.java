@@ -4,6 +4,7 @@ import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spi.AbstractContainerLifecycleListener;
@@ -78,6 +79,9 @@ public class ApplicationConfig extends ResourceConfig {
     private static class LifecycleHandler extends AbstractContainerLifecycleListener {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
+        @Inject
+        PersistService service;
+
         @Override
         public void onStartup(Container container) {
             logger.info(">>> Application Startup");
@@ -86,6 +90,9 @@ public class ApplicationConfig extends ResourceConfig {
         @Override
         public void onShutdown(Container container) {
             logger.info(">>> Application Shutdown");
+
+            // Stop persistence service
+            service.stop();
         }
     }
 }
