@@ -13,7 +13,7 @@ With the Guice HK2 bridge i place, bootstrapping Guice in pure Java and or a JAX
  
 ## Set up Guice persist with integration tests
 
-### User
+### JPA Domain
 ```java
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -56,7 +56,7 @@ public class User implements Serializable {
 }
 ```
 
-### UserRepository
+### Repository
 ```java
 @Singleton
 public class UserRepository {
@@ -85,6 +85,7 @@ public class UserRepository {
     }
 }
 ```
+
 ### persistence.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -188,7 +189,7 @@ public class PersistenceInitializer {
 }
 ```
 
-### UserRepositoryTest
+### Repository Integration Tests
 ```java
 public class UserRepositoryTest {
 
