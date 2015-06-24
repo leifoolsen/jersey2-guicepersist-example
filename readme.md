@@ -13,7 +13,7 @@ With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX
  
 ## Set up Guice persist with integration tests
 
-### JPA Domain
+### Domain
 ```java
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
