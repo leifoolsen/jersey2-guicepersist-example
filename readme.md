@@ -60,7 +60,6 @@ public class User implements Serializable {
 ```java
 @Singleton
 public class UserRepository {
-
     private Provider<EntityManager> provider;
 
     @Inject
@@ -127,7 +126,6 @@ public class GuiceModule implements Module {
 ### PersistenceModule
 ```java
 public class PersistenceModule implements Module {
-
     @Override
     public void configure(Binder binder) {
         binder
@@ -181,7 +179,6 @@ public class PersistenceModule implements Module {
 ```java
 @Singleton
 public class PersistenceInitializer {
-
     @Inject
     public PersistenceInitializer(PersistService service) {
         service.start();
@@ -192,7 +189,6 @@ public class PersistenceInitializer {
 ### Repository Integration Tests
 ```java
 public class UserRepositoryTest {
-
     private static Injector injector;
 
     @Inject
