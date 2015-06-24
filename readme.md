@@ -9,7 +9,7 @@ Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS C
 handle Unit of Work. Beyond that, to ensure that each request get it's own thread safe entity manager, 
 an ```Provider<EntityManager>``` should be injected rather than injecting the entity manager directly.
  
-With the Guice HK2 bridge i place, bootstrapping Guice in pure Java and or a JAX-RS container is no different.
+With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX-RS container is no different.
  
 ## Set up Guice persist with integration tests
 
