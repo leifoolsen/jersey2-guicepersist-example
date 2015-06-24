@@ -15,7 +15,6 @@ import org.junit.Test;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -66,7 +65,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void findBeanSaying() {
+    public void findUserByName() {
         User user = new User("User#2", "useruser", true);
         userRepository.persist(user);
         List<User> users = userRepository.findUserByName("User%");

@@ -6,11 +6,16 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 
 import java.util.Properties;
 
-public class PersistenceModule  implements Module {
+public class PersistenceModule implements Module {
 
     @Override
     public void configure(Binder binder) {
+        binder.install(new JpaPersistModule("jpa-example").properties(getPersistenceProperties()));
+        binder.bind(PersistenceInitializer.class).asEagerSingleton();
+    }
 
+    private static Properties getPersistenceProperties() {
+        // TODO: Properties should be injected via @Named
         Properties properties = new Properties();
         properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
         properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:mymemdb");
@@ -44,7 +49,6 @@ public class PersistenceModule  implements Module {
         properties.put("eclipselink.metadata-source", "XML");
         properties.put("eclipselink.metadata-source.xml.file", "META-INF/eclipselink-orm.xml");
 
-        binder.install(new JpaPersistModule("jpa-example").properties(properties));
-        binder.bind(PersistenceInitializer.class).asEagerSingleton();
+        return properties;
     }
 }
