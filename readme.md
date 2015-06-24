@@ -129,7 +129,10 @@ public class PersistenceModule implements Module {
 
     @Override
     public void configure(Binder binder) {
-        binder.install(new JpaPersistModule("jpa-example").properties(getPersistenceProperties()));
+        binder
+          .install(new JpaPersistModule("jpa-example")
+          .properties(getPersistenceProperties()));
+          
         binder.bind(PersistenceInitializer.class).asEagerSingleton();
     }
 
@@ -235,7 +238,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testMultipleTransactions() {
+    public void testNestedTransactions() {
         EntityManager em = provider.get();
         em.getTransaction().begin();
 
