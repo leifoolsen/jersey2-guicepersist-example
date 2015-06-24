@@ -260,10 +260,6 @@ public class UserRepositoryTest {
 ## Set up JAX-RS resource with client api integration tests
 TBD...
 
-## Prerequisites
-Maven 3
-JDK 7
-
 ##Steps to run this project
 * Fork, Clone or Download ZIP
 * Build project: *mvn clean install -U*
