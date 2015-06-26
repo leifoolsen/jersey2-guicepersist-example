@@ -3,9 +3,6 @@ A project demonstrating how to configure Google Guice with JPA in a Jersey2 (JAX
 use the Guice servlet module or the Guice persist filter - which anyway should be regarded as redundant components in a 
 stateless JAX-RS container.
 
-To ensure that each request get it's own thread safe entity manager, an ```Provider<EntityManager>``` should be injected 
-rather than injecting the entity manager directly.
-
 ## Set up Guice persist with integration tests
 
 TODO: Add more text to each section
@@ -56,7 +53,8 @@ public class User implements Serializable {
 ```
 
 ### Repository
-A repository to persist our domain.
+A repository to persist our domain. To ensure that each request get it's own thread safe entity manager, an 
+```Provider<EntityManager>``` should be injected rather than injecting the entity manager directly.
 
 ```java
 @Singleton
@@ -134,7 +132,7 @@ public class GuiceModule implements Module {
 ```
 
 ### PersistenceInitializer
-Start persistence service.
+Start the persistence service by invoking start() on ```PersistService```.
 
 ```java
 @Singleton
@@ -147,7 +145,7 @@ public class PersistenceInitializer {
 ```
 
 ### PersistenceModule
-Bootstrap Guice Persist.
+Configure databse and install Guice Persist.
 
 ```java
 public class PersistenceModule implements Module {
@@ -179,6 +177,7 @@ public class PersistenceModule implements Module {
 ```
 
 ### Repository Integration Tests
+Integration tests for our domain.
 
 ```java
 public class UserRepositoryTest {
