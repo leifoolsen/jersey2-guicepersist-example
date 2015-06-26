@@ -248,7 +248,6 @@ public class ApplicationConfig extends ResourceConfig {
         }
         APPLICATION_PATH = appPath;
     }
-
     @Inject // Note: inject from HK2
     public ApplicationConfig(ServiceLocator serviceLocator) {
 
@@ -267,7 +266,6 @@ public class ApplicationConfig extends ResourceConfig {
         // Scans during deployment for JAX-RS components in packages
         packages("com.github.leifoolsen.jerseyguicepersist.rest");
     }
-
     private static class ApplicationLifecycleListener extends AbstractContainerLifecycleListener {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -303,12 +301,10 @@ public class UnitOfWorkFilter implements ContainerRequestFilter, ContainerRespon
     public UnitOfWorkFilter(UnitOfWork unitOfWork) {
         this.unitOfWork = unitOfWork;
     }
-
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         unitOfWork.begin();
     }
-
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response) {
         unitOfWork.end();
@@ -330,7 +326,6 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     public GenericExceptionMapper(@Context UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
-
     @Override
     public Response toResponse(Throwable t) {
         logger.error("Unhandeled exception: {}", t.toString());
@@ -368,19 +363,16 @@ public class UserResource {
     public UserResource(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void create(final User user) {
         userRepository.persist(user);
     }
-
     @GET
     @Path("{id}")
     public User find(@PathParam("id") final String id) {
         return userRepository.find(id);
     }
-
     @GET
     @Path("test-unsupported-exception")
     public Object unsupportedException() {
@@ -428,12 +420,10 @@ public class UserResourceTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(u2, MediaType.APPLICATION_JSON_TYPE));
     }
-
     @AfterClass
     public static void tearDown() throws Exception {
         JettyBootstrap.stop(server);
     }
-
     @Test
     public void shouldFindUserByGivenId() {
         final Response response = target
@@ -448,7 +438,6 @@ public class UserResourceTest {
         assertNotNull(u);
         assertThat(u.getId(), equalTo(idU1));
     }
-
     @Test
     public void unhandeledExceptionShouldReturn_INTERNAL_SERVER_ERROR() {
         final Response response = target
@@ -459,7 +448,6 @@ public class UserResourceTest {
 
         assertThat(response.getStatus(), equalTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
     }
-
     @Test
     public void getApplicationWadl() throws Exception {
         final Response response = target
