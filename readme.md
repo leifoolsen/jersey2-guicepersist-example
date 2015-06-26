@@ -165,9 +165,8 @@ public class PersistenceModule implements Module {
         properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:mymemdb");
         properties.put("javax.persistence.jdbc.user", "sa");
         properties.put("javax.persistence.jdbc.password", "");
-
-        ......
-        
+        ...
+        ...
         properties.put("eclipselink.metadata-source", "XML");
         properties.put("eclipselink.metadata-source.xml.file", "META-INF/eclipselink-orm.xml");
 
