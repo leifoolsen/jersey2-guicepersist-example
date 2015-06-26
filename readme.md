@@ -3,15 +3,12 @@ A project demonstrating how to configure Google Guice with JPA in a Jersey2 (JAX
 use the Guice servlet module or the Guice persist filter - which anyway should be regarded as redundant components in a 
 stateless JAX-RS container.
 
-Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
-[Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
-Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS ContainerRequest Response Filter to 
-handle Unit of Work. Beyond that, to ensure that each request get it's own thread safe entity manager, 
-an ```Provider<EntityManager>``` should be injected rather than injecting the entity manager directly.
- 
-With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX-RS container is no different.
- 
+To ensure that each request get it's own thread safe entity manager, an ```Provider<EntityManager>``` should be injected 
+rather than injecting the entity manager directly.
+
 ## Set up Guice persist with integration tests
+
+TODO: Add some text to each section
 
 ### Domain
 ```java
@@ -113,12 +110,24 @@ public class UserRepository {
     <entity class="com.github.leifoolsen.jerseyguicepersist.domain.User" />
 </entity-mappings>
 ```
+
 ### GuiceModule
 ```java
 public class GuiceModule implements Module {
     @Override
     public void configure(Binder binder) {
         binder.bind(UserRepository.class);
+    }
+}
+```
+
+### PersistenceInitializer
+```java
+@Singleton
+public class PersistenceInitializer {
+    @Inject
+    public PersistenceInitializer(PersistService service) {
+        service.start();
     }
 }
 ```
@@ -143,30 +152,8 @@ public class PersistenceModule implements Module {
         properties.put("javax.persistence.jdbc.user", "sa");
         properties.put("javax.persistence.jdbc.password", "");
 
-        // eclipselink.ddl-generation: "create-tables", "create-or-extend-tables", "drop-and-create-tables", "none"
-        //                        See: http://eclipse.org/eclipselink/documentation/2.5/jpa/extensions/p_ddl_generation.htm
-        properties.put("eclipselink.ddl-generation", "drop-and-create-tables"); //
-        properties.put("eclipselink.ddl-generation.output-mode", "database");
-        properties.put("eclipselink.logging.level", "OFF");  // OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
-        properties.put("eclipselink.logging.level.sql", "INFO");
-        properties.put("eclipselink.logging.parameters", "true");
-        properties.put("eclipselink.logging.timestamp", "true");
-        properties.put("eclipselink.logging.session", "true");
-        properties.put("eclipselink.logging.thread", "true");
-        properties.put("eclipselink.logging.exceptions", "true");
-
-        // EL optimization, see: http://java-persistence-performance.blogspot.no/2011/06/how-to-improve-jpa-performance-by-1825.html
-        properties.put("eclipselink.jdbc.cache-statements", "true");
-        properties.put("eclipselink.jdbc.batch-writing", "JDBC");
-        properties.put("eclipselink.jdbc.batch-writing.size", "1000");
-        properties.put("eclipselink.persistence-context.flush-mode", "commit");
-        properties.put("eclipselink.persistence-context.close-on-commit", "true");
-        properties.put("eclipselink.persistence-context.persist-on-commit", "false");
-        properties.put("eclipselink.flush-clear.cache", "drop");
-        //properties.put("eclipselink.logging.logger", "JavaLogger");
-
-        // Eclipselink can not load entity classes dynamically.
-        // Classes must be added to META-INF/eclipselink-orm.xml by hand :-(
+        ......
+        
         properties.put("eclipselink.metadata-source", "XML");
         properties.put("eclipselink.metadata-source.xml.file", "META-INF/eclipselink-orm.xml");
 
@@ -175,24 +162,10 @@ public class PersistenceModule implements Module {
 }
 ```
 
-### PersistenceInitializer
-```java
-@Singleton
-public class PersistenceInitializer {
-    @Inject
-    public PersistenceInitializer(PersistService service) {
-        service.start();
-    }
-}
-```
-
 ### Repository Integration Tests
 ```java
 public class UserRepositoryTest {
     private static Injector injector;
-
-    @Inject
-    private Provider<EntityManager> provider;
 
     @Inject
     private UnitOfWork unitOfWork;
@@ -204,12 +177,10 @@ public class UserRepositoryTest {
         injector = Guice.createInjector(new PersistenceModule(), new GuiceModule());
         userRepository = injector.getInstance(UserRepository.class);
     }
-
     @Before
     public void before() {
         if(provider == null) {
             injector.injectMembers(this);
-            assertThat(provider, is(notNullValue()));
             assertThat(unitOfWork, is(notNullValue()));
         }
         unitOfWork.begin();
@@ -218,14 +189,12 @@ public class UserRepositoryTest {
     public void after() {
         unitOfWork.end();
     }
-
     @Test
     public void addUser() {
         User user = new User("UserLOL", "lollol", true);
         userRepository.persist(user);
         assertThat(userRepository.find(user.getId()), is(notNullValue()));
     }
-
     @Test
     public void findUserByName() {
         User user = new User("User#2", "useruser", true);
@@ -233,32 +202,250 @@ public class UserRepositoryTest {
         List<User> users = userRepository.findUserByName("User%");
         assertThat(users, hasSize(greaterThan(0)));
     }
+}
+```
 
-    @Test
-    public void testNestedTransactions() {
-        EntityManager em = provider.get();
-        em.getTransaction().begin();
+## Set up a JAX-RS resource with client api integration tests
+Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
+[Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
+Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS ContainerRequest Response Filter to 
+handle Unit of Work. 
+ 
+With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX-RS container is no different.
+ 
 
-        User u1 = new User("U1", "u1u1", true);
-        userRepository.persist(u1);
+### JAX-RS Application
+```java
+@ApplicationPath("/api/*")
+public class ApplicationConfig extends ResourceConfig {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-        User u2 = new User("U2", "u2u2", true);
-        userRepository.persist(u2);
+    public static final String APPLICATION_PATH;
 
-        assertThat(userRepository.find(u1.getId()), is(notNullValue()));
-        assertThat(userRepository.find(u2.getId()), is(notNullValue()));
+    static {
+        String appPath = "";
+        if(ApplicationConfig.class.isAnnotationPresent(ApplicationPath.class)) {
+            // Remove '/*' from @ApplicationPath, e.g:  "/api/*" -> /api
+            appPath = ApplicationConfig.class.getAnnotation(ApplicationPath.class).value();
+            appPath = appPath.substring(0, appPath.endsWith("/*") ? appPath.lastIndexOf("/*") : appPath.length()-1);
+        }
+        APPLICATION_PATH = appPath;
+    }
 
-        assertThat(em.isJoinedToTransaction(), is(true));
-        em.getTransaction().rollback();
+    @Inject
+    public ApplicationConfig(ServiceLocator serviceLocator) {
 
-        assertThat(userRepository.find(u1.getId()), is(nullValue()));
-        assertThat(userRepository.find(u2.getId()), is(nullValue()));
+        // Guice
+        Injector injector = Guice.createInjector(new PersistenceModule(), new GuiceModule());
+
+        // Guice HK2 bridge
+        // See e.g. https://github.com/t-tang/jetty-jersey-HK2-Guice-boilerplate
+        GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
+        GuiceIntoHK2Bridge bridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
+        bridge.bridgeGuiceInjector(injector);
+        
+        // Application startup and shutdown listener
+        register(ApplicationLifecycleListener.class);
+
+        // Scans during deployment for JAX-RS components in packages
+        packages("com.github.leifoolsen.jerseyguicepersist.rest");
+    }
+
+    private static class ApplicationLifecycleListener extends AbstractContainerLifecycleListener {
+        private final Logger logger = LoggerFactory.getLogger(getClass());
+
+        @Inject
+        PersistService service;
+
+        @Override
+        public void onStartup(Container container) {
+            logger.info(">>> Application Startup");
+        }
+
+        @Override
+        public void onShutdown(Container container) {
+            logger.info(">>> Application Shutdown");
+
+            // Stop persistence service
+            service.stop();
+        }
     }
 }
 ```
 
-## Set up JAX-RS resource with client api integration tests
-TBD...
+### Unit of Work Filter
+```java
+@Provider
+public class UnitOfWorkFilter implements ContainerRequestFilter, ContainerResponseFilter {
+    private UnitOfWork unitOfWork;
+
+    @Inject
+    public UnitOfWorkFilter(UnitOfWork unitOfWork) {
+        this.unitOfWork = unitOfWork;
+    }
+
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        unitOfWork.begin();
+    }
+
+    @Override
+    public void filter(ContainerRequestContext request, ContainerResponseContext response) {
+        unitOfWork.end();
+    }
+}
+```
+
+### Catch all Exception Mapper
+```java
+@Provider
+public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private UriInfo uriInfo; // actual uri info provided by parent resource (threadsafe)
+
+    public GenericExceptionMapper(@Context UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+    }
+
+    @Override
+    public Response toResponse(Throwable t) {
+        logger.error("Unhandeled exception: {}", t.toString());
+
+        return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Unhandeled exception: " + t.toString())
+                .location(uriInfo.getRequestUri()) // uriInfo.getAbsolutePath()
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+}
+```
+
+### Rest-API
+```java
+@Singleton
+@Path("users")
+@Produces(MediaType.APPLICATION_JSON)
+public class UserResource {
+    public static final String RESOURCE_PATH;
+
+    static {
+        RESOURCE_PATH = UserResource.class.isAnnotationPresent(Path.class)
+                ? UserResource.class.getAnnotation(Path.class).value() : "";
+    }
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private UserRepository userRepository;
+
+    @Inject
+    public UserResource(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void create(final User user) {
+        userRepository.persist(user);
+    }
+
+    @GET
+    @Path("{id}")
+    public User find(@PathParam("id") final String id) {
+        return userRepository.find(id);
+    }
+
+    @GET
+    @Path("test-unsupported-exception")
+    public Object unsupportedException() {
+        // The GenericExceptionMapper class should catch this exception and return
+        // a Response.Status.INTERNAL_SERVER_ERROR status to the client
+        throw new UnsupportedOperationException("UNSUPPORTED!!!");
+    }
+}
+```
+
+### Rest-API Integration Test
+```java
+public class UserResourceTest {
+    private static final int PORT = 8080;
+    private static final String DEFAULT_CONTEXT_PATH = "/";
+
+    private static Server server;
+    private static WebTarget target;
+
+    private static String idU1;
+    private static String idU2;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        // Start the server
+        server = JettyBootstrap.start(DEFAULT_CONTEXT_PATH, PORT);
+
+        // create the client
+        Client c = ClientBuilder.newClient();
+        target = c.target(server.getURI()).path(ApplicationConfig.APPLICATION_PATH);
+
+        User u1 = new User("U1", "u1u1", true);
+        idU1 = u1.getId();
+
+        User u2 = new User("U2", "u2u2", true);
+        idU2 = u2.getId();
+
+        target.path(UserResource.RESOURCE_PATH)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(u1, MediaType.APPLICATION_JSON_TYPE));
+
+        target.path(UserResource.RESOURCE_PATH)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(u2, MediaType.APPLICATION_JSON_TYPE));
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        JettyBootstrap.stop(server);
+    }
+
+    @Test
+    public void shouldFindUserByGivenId() {
+        final Response response = target
+                .path("users")
+                .path(idU1)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+
+        User u = response.readEntity(User.class);
+        assertNotNull(u);
+        assertThat(u.getId(), equalTo(idU1));
+    }
+
+    @Test
+    public void unhandeledExceptionShouldReturn_INTERNAL_SERVER_ERROR() {
+        final Response response = target
+                .path("users")
+                .path("test-unsupported-exception")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        assertThat(response.getStatus(), equalTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+    }
+
+    @Test
+    public void getApplicationWadl() throws Exception {
+        final Response response = target
+                .path("application.wadl")
+                .request(MediaType.APPLICATION_XML)
+                .get();
+
+        assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+        String wadl = response.readEntity(String.class);
+        assertThat(wadl.length(), greaterThan(0));
+    }
+}
+```
 
 ##Steps to run this project
 * Fork, Clone or Download ZIP
