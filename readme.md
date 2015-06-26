@@ -1,4 +1,4 @@
-#Jersey-2, Guice Persist, Embedded Jetty
+#Jersey-2 with Guice Persist
 A project demonstrating how to configure Google Guice with JPA in a Jersey2 (JAX-RS) container. This project does not 
 use the Guice servlet module or the Guice persist filter - which anyway should be regarded as redundant components in a 
 stateless JAX-RS container.
@@ -8,9 +8,11 @@ rather than injecting the entity manager directly.
 
 ## Set up Guice persist with integration tests
 
-TODO: Add some text to each section
+TODO: Add more text to each section
 
 ### Domain
+A super simple domain for this example.
+
 ```java
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -54,6 +56,8 @@ public class User implements Serializable {
 ```
 
 ### Repository
+A repository to persist our domain.
+
 ```java
 @Singleton
 public class UserRepository {
@@ -83,6 +87,8 @@ public class UserRepository {
 ```
 
 ### persistence.xml
+Only a minimal ```persistence.xml``` is needed. Configuration og the database is performed in the ```PersistenceModule``` class.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="2.1"
@@ -100,6 +106,10 @@ public class UserRepository {
 ```
 
 ### eclipselink-orm.xml
+Eclipselink can not load entity classes via properties. Our entity classes must be added to ```META-INF/eclipselink-orm.xml```. 
+In the ```PersistenceModule``` class we can then load the ```eclipselink-orm.xml``` by setting the properties
+```eclipselink.metadata-source``` and ```eclipselink.metadata-source.xml.file```.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <entity-mappings xmlns="http://www.eclipse.org/eclipselink/xsds/persistence/orm"
@@ -112,6 +122,8 @@ public class UserRepository {
 ```
 
 ### GuiceModule
+Bind Guice components.
+
 ```java
 public class GuiceModule implements Module {
     @Override
@@ -122,6 +134,8 @@ public class GuiceModule implements Module {
 ```
 
 ### PersistenceInitializer
+Start persistence service.
+
 ```java
 @Singleton
 public class PersistenceInitializer {
@@ -133,6 +147,8 @@ public class PersistenceInitializer {
 ```
 
 ### PersistenceModule
+Bootstrap Guice Persist.
+
 ```java
 public class PersistenceModule implements Module {
     @Override
@@ -163,6 +179,7 @@ public class PersistenceModule implements Module {
 ```
 
 ### Repository Integration Tests
+
 ```java
 public class UserRepositoryTest {
     private static Injector injector;
@@ -215,6 +232,8 @@ With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX
  
 
 ### JAX-RS Application
+The resource config class.
+
 ```java
 @ApplicationPath("/api/*")
 public class ApplicationConfig extends ResourceConfig {
@@ -232,7 +251,7 @@ public class ApplicationConfig extends ResourceConfig {
         APPLICATION_PATH = appPath;
     }
 
-    @Inject
+    @Inject // Note: inject from HK2
     public ApplicationConfig(ServiceLocator serviceLocator) {
 
         // Guice
@@ -254,7 +273,7 @@ public class ApplicationConfig extends ResourceConfig {
     private static class ApplicationLifecycleListener extends AbstractContainerLifecycleListener {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
-        @Inject
+        @Inject // Note: The HK2 bridge takes care of injecting from correct DI-container
         PersistService service;
 
         @Override
@@ -274,6 +293,9 @@ public class ApplicationConfig extends ResourceConfig {
 ```
 
 ### Unit of Work Filter
+To start and end a unit of work arbitrarily we'll use a 
+[JAX-RS server filter](https://jersey.java.net/documentation/latest/user-guide.html#d0e9579).
+
 ```java
 @Provider
 public class UnitOfWorkFilter implements ContainerRequestFilter, ContainerResponseFilter {
@@ -297,6 +319,9 @@ public class UnitOfWorkFilter implements ContainerRequestFilter, ContainerRespon
 ```
 
 ### Catch all Exception Mapper
+An unhandled exception from the JAX-RS container will break the Unit of Work Filter; i.e. the response filter will not
+execute. To keep the Unit of Work begin/end balanced, we must as a minimum implement a "catch all" exception mapper.
+
 ```java
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
@@ -323,6 +348,8 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 ```
 
 ### Rest API
+A rest api which injects a Guice component. The Guice-HK2 bridge is responsible for injection from correct DI-container.
+
 ```java
 @Singleton
 @Path("users")
@@ -366,7 +393,9 @@ public class UserResource {
 }
 ```
 
-### Client API Integration Test
+### Client API Integration Tests
+We'll use the standard JAX-RS2 client api to test our resource.
+
 ```java
 public class UserResourceTest {
     private static final int PORT = 8080;
