@@ -46,8 +46,8 @@ public class ApplicationConfig extends ResourceConfig {
         // Enable LoggingFilter & output entity.
         //registerInstances(new LoggingFilter(java.util.logging.Logger.getLogger(this.getClass().getName()), true));
 
-        //
-        register(LifecycleHandler.class);
+        // To shutdown Guice Persistservice
+        register(ApplicationLifecycleListener.class);
 
         // Scans during deployment for JAX-RS components in packages
         packages("com.github.leifoolsen.jerseyguicepersist.rest");
@@ -76,7 +76,7 @@ public class ApplicationConfig extends ResourceConfig {
     }
 
 
-    private static class LifecycleHandler extends AbstractContainerLifecycleListener {
+    private static class ApplicationLifecycleListener extends AbstractContainerLifecycleListener {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
         @Inject

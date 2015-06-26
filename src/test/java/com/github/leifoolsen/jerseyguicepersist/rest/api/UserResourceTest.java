@@ -78,7 +78,7 @@ public class UserResourceTest {
     public void unhandeledExceptionShouldReturn_INTERNAL_SERVER_ERROR() {
         final Response response = target
                 .path("users")
-                .path("unsupported-exception")
+                .path("test-unsupported-exception")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
 

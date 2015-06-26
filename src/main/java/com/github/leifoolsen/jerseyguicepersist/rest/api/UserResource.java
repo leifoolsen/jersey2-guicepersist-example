@@ -51,7 +51,7 @@ public class UserResource {
     }
 
     @GET
-    @Path("unsupported-exception")
+    @Path("test-unsupported-exception")
     public Object unsupportedException() {
         // The GenericExceptionMapper class should catch this exception and return
         // a Response.Status.INTERNAL_SERVER_ERROR status to the client

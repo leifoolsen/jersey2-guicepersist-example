@@ -6,8 +6,10 @@ import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
 import com.google.inject.persist.UnitOfWork;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,10 +31,10 @@ public class UserRepositoryTest {
     private static Injector injector;
 
     @Inject
-    private Provider<EntityManager> provider;
+    private UnitOfWork unitOfWork;
 
     @Inject
-    private UnitOfWork unitOfWork;
+    private Provider<EntityManager> provider;
 
     private static UserRepository userRepository = null;
 
@@ -42,6 +44,12 @@ public class UserRepositoryTest {
         userRepository = injector.getInstance(UserRepository.class);
     }
 
+    @AfterClass
+    public static void tearDown() {
+        PersistService service = injector.getInstance(PersistService.class);
+        service.stop();
+    }
+
     @Before
     public void before() {
         if(provider == null) {
@@ -49,7 +57,6 @@ public class UserRepositoryTest {
             assertThat(provider, is(notNullValue()));
             assertThat(unitOfWork, is(notNullValue()));
         }
-
         unitOfWork.begin();
     }
     @After
