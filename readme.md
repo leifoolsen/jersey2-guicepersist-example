@@ -205,7 +205,7 @@ public class UserRepositoryTest {
 }
 ```
 
-## Set up a JAX-RS resource with client api integration tests
+## Set up a JAX-RS Resource with Integration Tests
 Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
 [Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
 Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS ContainerRequest Response Filter to 
@@ -322,7 +322,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 }
 ```
 
-### Rest-API
+### Rest API
 ```java
 @Singleton
 @Path("users")
@@ -366,7 +366,7 @@ public class UserResource {
 }
 ```
 
-### Rest-API Integration Test
+### Client API Integration Test
 ```java
 public class UserResourceTest {
     private static final int PORT = 8080;
