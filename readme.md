@@ -205,7 +205,7 @@ public class UserRepositoryTest {
 }
 ```
 
-## Set up a JAX-RS Resource with Integration Tests
+## Set up JAX-RS with Client API Integration Tests
 Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
 [Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
 Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS ContainerRequest Response Filter to 
