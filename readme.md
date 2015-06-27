@@ -223,14 +223,17 @@ public class UserRepositoryTest {
 ## Set up JAX-RS with Client API Integration Tests
 Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
 [Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
-Since a servlet filter is unnecessary in JAX-RS, one can use a combined JAX-RS ContainerRequest Response Filter to 
-handle Unit of Work. 
+The problem with this is that Servlet and JAX-RS are two separate containers, which in turn will lead to difficulties
+maintainling aspects of the application. For example, if we're using the Guice PersistFilter we must handle database
+exceptions both in the Servlet container and in the JAX-RS container. A JAX-RS application shuld (in my opinion) have no 
+knowledge of state and session - so servlets and servlet filters should not be required in JAX-RS. Rather, one can use a 
+[JAX-RS Server Filter](https://jersey.java.net/documentation/latest/user-guide.html#d0e9579) to handle Unit of Work. 
  
 With the Guice HK2 bridge in place, bootstrapping Guice in pure Java or in a JAX-RS container is no different.
  
 
 ### JAX-RS Application
-The resource config class.
+The [JAX-RS Application Model](https://jersey.java.net/documentation/latest/user-guide.html#environmenmt.appmodel).
 
 ```java
 @ApplicationPath("/api/*")
@@ -289,7 +292,7 @@ public class ApplicationConfig extends ResourceConfig {
 ```
 
 ### Unit of Work Filter
-To start and end a unit of work arbitrarily we'll use a 
+To start and end a [Unit of Work](https://github.com/google/guice/wiki/Transactions) arbitrarily we'll use a 
 [JAX-RS server filter](https://jersey.java.net/documentation/latest/user-guide.html#d0e9579).
 
 ```java
