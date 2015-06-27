@@ -85,7 +85,7 @@ public class UserRepository {
 ```
 
 ### persistence.xml
-Only a minimal ```persistence.xml``` is needed. Configuration og the database is performed in the ```PersistenceModule``` class.
+Only a minimal ```persistence.xml``` is needed. Configuration of the database is performed in the ```PersistenceModule``` class.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -194,7 +194,7 @@ public class UserRepositoryTest {
     }
     @Before
     public void before() {
-        if(provider == null) {
+        if(unitOfWork == null) {
             injector.injectMembers(this);
             assertThat(unitOfWork, is(notNullValue()));
         }

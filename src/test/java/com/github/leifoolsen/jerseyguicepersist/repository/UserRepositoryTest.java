@@ -52,7 +52,7 @@ public class UserRepositoryTest {
 
     @Before
     public void before() {
-        if(provider == null) {
+        if(unitOfWork == null) {
             injector.injectMembers(this);
             assertThat(provider, is(notNullValue()));
             assertThat(unitOfWork, is(notNullValue()));
