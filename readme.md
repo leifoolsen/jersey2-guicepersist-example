@@ -59,11 +59,11 @@ A repository to persist our domain. To ensure that each request get it's own thr
 ```java
 @Singleton
 public class UserRepository {
-    private Provider<EntityManager> provider;
+    private Provider<EntityManager> emProvider;
 
     @Inject
-    public UserRepository(Provider<EntityManager> provider) { 
-        this.provider = provider; 
+    public UserRepository(Provider<EntityManager> emProvider) { 
+        this.emProvider = emProvider; 
     }
     @Transactional
     public void persist(final User user) { 
@@ -79,7 +79,7 @@ public class UserRepository {
         return q.getResultList();
     }
     public EntityManager getEntityManager() { 
-        return provider.get(); 
+        return emProvider.get(); 
     }
 }
 ```
@@ -94,7 +94,7 @@ Only a minimal ```persistence.xml``` is needed. Configuration of the database is
      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
 
     <persistence-unit name="jpa-example" transaction-type="RESOURCE_LOCAL">
-        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <emProvider>org.eclipse.persistence.jpa.PersistenceProvider</emProvider>
         <exclude-unlisted-classes />
         <properties>
         </properties>
@@ -237,7 +237,7 @@ The [JAX-RS Application Model](https://jersey.java.net/documentation/latest/user
 
 ```java
 @ApplicationPath("/api/*")
-public class ApplicationConfig extends ResourceConfig {
+public class ApplicationModel extends ResourceConfig {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String APPLICATION_PATH;
