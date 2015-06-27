@@ -387,7 +387,7 @@ public class UserResource {
 ```
 
 ### Client API Integration Tests
-We'll use the standard JAX-RS2 client api to test our resource.
+We'll use the standard [JAX-RS2 client api](https://jersey.java.net/documentation/latest/user-guide.html#client) to test our resource.
 
 ```java
 public class UserResourceTest {
