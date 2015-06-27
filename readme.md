@@ -4,11 +4,10 @@ use the Guice servlet module or the Guice persist filter - which anyway should b
 stateless JAX-RS container.
 
 ## Set up Guice persist with integration tests
-
-TODO: Add more text to each section
+The first step is to create an entity model and a repository to store and retreive the entities.
 
 ### Domain
-A super simple domain for this example.
+We'll use a simple POJO for this example. 
 
 ```java
 @XmlRootElement
