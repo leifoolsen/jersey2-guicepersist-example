@@ -34,7 +34,7 @@ public class UserRepositoryTest {
     private UnitOfWork unitOfWork;
 
     @Inject
-    private Provider<EntityManager> provider;
+    private Provider<EntityManager> emProvider;
 
     private static UserRepository userRepository = null;
 
@@ -54,7 +54,7 @@ public class UserRepositoryTest {
     public void before() {
         if(unitOfWork == null) {
             injector.injectMembers(this);
-            assertThat(provider, is(notNullValue()));
+            assertThat(emProvider, is(notNullValue()));
             assertThat(unitOfWork, is(notNullValue()));
         }
         unitOfWork.begin();
@@ -81,7 +81,7 @@ public class UserRepositoryTest {
 
     @Test
     public void testNestedTransactions() {
-        EntityManager em = provider.get();
+        EntityManager em = emProvider.get();
         em.getTransaction().begin();
 
         User u1 = new User("U1", "u1u1", true);

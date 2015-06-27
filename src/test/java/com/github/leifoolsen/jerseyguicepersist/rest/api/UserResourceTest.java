@@ -2,7 +2,7 @@ package com.github.leifoolsen.jerseyguicepersist.rest.api;
 
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.main.JettyBootstrap;
-import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationConfig;
+import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationModel;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -37,7 +37,7 @@ public class UserResourceTest {
 
         // create the client
         Client c = ClientBuilder.newClient();
-        target = c.target(server.getURI()).path(ApplicationConfig.APPLICATION_PATH);
+        target = c.target(server.getURI()).path(ApplicationModel.APPLICATION_PATH);
 
         User u1 = new User("U1", "u1u1", true);
         idU1 = u1.getId();

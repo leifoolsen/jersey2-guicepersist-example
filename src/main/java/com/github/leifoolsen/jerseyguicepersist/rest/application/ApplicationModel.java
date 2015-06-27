@@ -19,23 +19,23 @@ import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/api/*")
-public class ApplicationConfig extends ResourceConfig {
+public class ApplicationModel extends ResourceConfig {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String APPLICATION_PATH;
 
     static {
         String appPath = "";
-        if(ApplicationConfig.class.isAnnotationPresent(ApplicationPath.class)) {
+        if(ApplicationModel.class.isAnnotationPresent(ApplicationPath.class)) {
             // Remove '/*' from @ApplicationPath, e.g:  "/api/*" -> /api
-            appPath = ApplicationConfig.class.getAnnotation(ApplicationPath.class).value();
+            appPath = ApplicationModel.class.getAnnotation(ApplicationPath.class).value();
             appPath = appPath.substring(0, appPath.endsWith("/*") ? appPath.lastIndexOf("/*") : appPath.length()-1);
         }
         APPLICATION_PATH = appPath;
     }
 
     @Inject
-    public ApplicationConfig(ServiceLocator serviceLocator) {
+    public ApplicationModel(ServiceLocator serviceLocator) {
 
         logger.debug("Initializing ...");
 
@@ -96,17 +96,3 @@ public class ApplicationConfig extends ResourceConfig {
         }
     }
 }
-
-
-/*
-public class ApplicationConfig extends Application {
-
-    @Override
-    public Set<Class<?>> getClasses() {
-        HashSet<Class<?>> classes = new HashSet();
-        classes.add(UserResource.class);
-
-        return classes;
-    }
-}
-*/

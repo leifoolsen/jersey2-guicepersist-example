@@ -13,11 +13,11 @@ import java.util.List;
 @Singleton
 public class UserRepository {
 
-    private Provider<EntityManager> provider;
+    private Provider<EntityManager> emProvider;
 
     @Inject
-    public UserRepository(Provider<EntityManager> provider) {
-        this.provider = provider;
+    public UserRepository(Provider<EntityManager> emProvider) {
+        this.emProvider = emProvider;
     }
 
     @Transactional
@@ -37,6 +37,6 @@ public class UserRepository {
     }
 
     public EntityManager getEntityManager() {
-        return provider.get();
+        return emProvider.get();
     }
 }
