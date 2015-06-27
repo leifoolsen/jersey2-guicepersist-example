@@ -45,8 +45,6 @@ public class UserResource {
     @GET
     @Path("{id}")
     public User find(@PathParam("id") final String id) {
-
-        //throw new UnsupportedOperationException("UNSUPPORTED!!!");
         return userRepository.find(id);
     }
 
