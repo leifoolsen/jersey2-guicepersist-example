@@ -1,7 +1,7 @@
 #Jersey-2 with Guice Persist
 A project that demonstrates how to configure Google Guice with JPA in a Jersey2 (JAX-RS) container. This project does not 
 use the Guice servlet module or the Guice persist filter - which anyway should be regarded as redundant components in a 
-stateless JAX-RS container.
+JAX-RS container (no state, no session awareness).
 
 ## Set up Guice persist with integration tests
 The first step is to create an entity model and a repository to store and retreive the entities.
