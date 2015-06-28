@@ -144,7 +144,7 @@ public class PersistenceInitializer {
 ```
 
 ### PersistenceModule
-Configure databse and install Guice Persist.
+Configure database and install Guice Persist.
 
 ```java
 public class PersistenceModule implements Module {
@@ -175,7 +175,7 @@ public class PersistenceModule implements Module {
 ```
 
 ### Repository Integration Tests
-Integration tests for our domain.
+CRUD integration tests for our domain.
 
 ```java
 public class UserRepositoryTest {
