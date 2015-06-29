@@ -1,7 +1,7 @@
 package com.github.leifoolsen.jerseyguicepersist.rest.api;
 
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
-import com.github.leifoolsen.jerseyguicepersist.main.JettyBootstrap;
+import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.EmbeddedJettyBuilder;
 import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationModel;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
@@ -17,13 +17,11 @@ import javax.ws.rs.core.Response;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class UserResourceTest {
-    private static final int PORT = 8080;
-    private static final String DEFAULT_CONTEXT_PATH = "/";
-
     private static Server server;
     private static WebTarget target;
 
@@ -33,7 +31,10 @@ public class UserResourceTest {
     @BeforeClass
     public static void setUp() throws Exception {
         // Start the server
-        server = JettyBootstrap.start(DEFAULT_CONTEXT_PATH, PORT);
+        //server = JettyBootstrap.start(DEFAULT_CONTEXT_PATH, PORT);
+        server = new EmbeddedJettyBuilder().defaultServer().build();
+        EmbeddedJettyBuilder.start(server);
+        assertThat(server.isRunning(), is(true));
 
         // create the client
         Client c = ClientBuilder.newClient();
@@ -56,7 +57,7 @@ public class UserResourceTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        JettyBootstrap.stop(server);
+        EmbeddedJettyBuilder.stop(server);
     }
 
     @Test
