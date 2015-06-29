@@ -44,6 +44,7 @@ public class AssertMethodAsTrueTest {
     public void beanBHasInvalidMethodValue() {
         BeanB b = new BeanB();
         ValidatorHelper.validate(b);
+        int i =1;
     }
 
 }
