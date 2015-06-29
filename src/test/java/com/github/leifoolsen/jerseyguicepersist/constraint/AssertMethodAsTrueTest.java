@@ -17,6 +17,7 @@ public class AssertMethodAsTrueTest {
         }
     }
 
+    @Test
     public void beanAIsValid() {
         BeanA a = new BeanA();
         a.a = 3;

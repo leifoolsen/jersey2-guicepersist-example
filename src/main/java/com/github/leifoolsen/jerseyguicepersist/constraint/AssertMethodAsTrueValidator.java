@@ -2,7 +2,7 @@
 
 package com.github.leifoolsen.jerseyguicepersist.constraint;
 
-import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
+import com.google.common.base.Throwables;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -24,7 +24,7 @@ public class AssertMethodAsTrueValidator implements ConstraintValidator<AssertMe
             Method validate = clazz.getMethod(methodName);
             return (Boolean) validate.invoke(object);
         } catch (Throwable t) {
-            SneakyThrow.sneakyThrow(t);
+            Throwables.propagate(t);
         }
         return false;
     }
