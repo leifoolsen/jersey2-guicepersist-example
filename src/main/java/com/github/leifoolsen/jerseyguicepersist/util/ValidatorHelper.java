@@ -19,7 +19,10 @@ public class ValidatorHelper {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<T>> constraintViolations = validator.validate(bean);
         if(!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException("Bean Validation constraint(s) violated.",
+            ConstraintViolation<?> cv = constraintViolations.iterator().next();
+
+            throw new ConstraintViolationException("Constraint(s) violated. " +
+                    "First violation is: " + cv.getPropertyPath() + ": "  + cv.getMessage(),
                     new HashSet<ConstraintViolation<?>>(constraintViolations));
         }
     }

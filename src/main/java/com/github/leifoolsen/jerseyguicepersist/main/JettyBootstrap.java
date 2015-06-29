@@ -6,7 +6,6 @@ import eu.nets.oss.jetty.EmbeddedJettyBuilder;
 import eu.nets.oss.jetty.StaticConfig;
 import eu.nets.oss.jetty.StdoutRedirect;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
