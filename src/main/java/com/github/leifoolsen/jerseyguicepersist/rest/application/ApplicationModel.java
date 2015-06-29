@@ -39,23 +39,28 @@ public class ApplicationModel extends ResourceConfig {
 
         logger.debug("Initializing ...");
 
-        configureJerseyLogging();
+        //configureJerseyLogging();
 
         guiceHK2Integration(serviceLocator);
 
         // Enable LoggingFilter & output entity.
         //registerInstances(new LoggingFilter(java.util.logging.Logger.getLogger(this.getClass().getName()), true));
 
-        // To shutdown Guice Persistservice
+        // Invoke startup and shutdown of app
         register(ApplicationLifecycleListener.class);
 
         // Scans during deployment for JAX-RS components in packages
         packages("com.github.leifoolsen.jerseyguicepersist.rest");
+
+        // ... or register resource classes
+        //registerClasses(UserResource.class);
+        //registerClasses(UnitOfWorkFilter.class);
+        //registerClasses(GenericExceptionMapper.class);
     }
 
     // make Jersey log through SLF4J
     private static void configureJerseyLogging() {
-        // Jersey uses java.util.logging. Bridge to slf4j
+        // Jersey uses java.util.logging. Bridge jul to slf4j
         java.util.logging.LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();

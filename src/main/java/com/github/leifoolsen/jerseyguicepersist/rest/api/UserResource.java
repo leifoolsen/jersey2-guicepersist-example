@@ -34,6 +34,7 @@ public class UserResource {
     @Inject
     public UserResource(UserRepository userRepository) {
         this.userRepository = userRepository;
+        logger.debug(this.getClass().getSimpleName() + " created");
     }
 
     @POST

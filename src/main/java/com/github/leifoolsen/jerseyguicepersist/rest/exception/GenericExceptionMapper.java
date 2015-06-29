@@ -19,6 +19,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     public GenericExceptionMapper(@Context UriInfo uriInfo) {
         this.uriInfo = uriInfo;
+        logger.debug(this.getClass().getSimpleName() + " provider created");
     }
 
     @Override

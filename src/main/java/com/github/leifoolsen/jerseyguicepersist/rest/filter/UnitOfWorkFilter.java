@@ -22,6 +22,7 @@ public class UnitOfWorkFilter implements ContainerRequestFilter, ContainerRespon
     @Inject
     public UnitOfWorkFilter(UnitOfWork unitOfWork) {
         this.unitOfWork = unitOfWork;
+        logger.debug(this.getClass().getSimpleName() + " provider created");
     }
 
     @Override

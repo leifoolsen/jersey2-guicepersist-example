@@ -2,13 +2,11 @@ package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
 
 import com.github.leifoolsen.jerseyguicepersist.constraint.AssertMethodAsTrue;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -40,23 +38,27 @@ public class EmbeddedJettyBuilder {
         return this;
     }
 
-    public EmbeddedJettyBuilder webappContext(final WebAppContextBuilder webAppContextBuilder) {
+    public EmbeddedJettyBuilder webAppContext(final WebAppContextBuilder webAppContextBuilder) {
         contextBuilders.add(webAppContextBuilder);
         return this;
     }
 
     public EmbeddedJettyBuilder defaultServer() {
         server(new ServerBuilder());
-        webappContext(new WebAppContextBuilder());
+        webAppContext(new WebAppContextBuilder());
         return this;
     }
 
     public Server build() {
         ValidatorHelper.validate(this);
+
         Server server = serverBuilder.build();
 
-        WebAppContextBuilder webAppContextBuilder = contextBuilders.get(0);
-        server.setHandler(webAppContextBuilder.build(server));
+        WebAppContextBuilder contextBuilder = contextBuilders.get(0);
+        server.setHandler(contextBuilder.build(server));
+
+        //SysStreamsLogger.bindSystemStreams();
+
         return server;
     }
 
@@ -89,6 +91,8 @@ public class EmbeddedJettyBuilder {
             QueuedThreadPool threadPool = new QueuedThreadPool();
             threadPool.setMinThreads(minThreads);
             threadPool.setMaxThreads(maxThreads);
+
+            // Create server
             return new Server(threadPool);
         }
 
@@ -137,6 +141,23 @@ public class EmbeddedJettyBuilder {
 
         private WebAppContext build(final Server server) {
 
+            // Configuration classes. This gives support for multiple features.
+            // The annotationConfiguration is required to support annotations like @WebServlet
+            // See: http://www.eclipse.org/jetty/documentation/current/configuring-webapps.html
+            // See: http://www.eclipse.org/jetty/documentation/current/using-annotations-embedded.html
+            Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(server);
+            try {
+                Class.forName("org.eclipse.jetty.annotations.AnnotationConfiguration");
+                classlist.addBefore(
+                        "org.eclipse.jetty.webapp.JettyWebXmlConfiguration",    // Processes a WEB-INF/web.xml file
+                        "org.eclipse.jetty.webapp.WebInfConfiguration",         // Extracts war, orders jars and defines classpath
+                        "org.eclipse.jetty.annotations.AnnotationConfiguration" // Scan container and web app jars looking for @WebServlet, @WebFilter, @WebListener etc
+                );
+                logger.debug("Annotation processing is enabled.");
+            } catch (ClassNotFoundException e) {
+                logger.debug("Annotation processing is not enabled, missing dependency on jetty-annotations.");
+            }
+
             // HTTP connector
             ServerConnector http = new ServerConnector(server);
             http.setName(name);
@@ -172,20 +193,6 @@ public class EmbeddedJettyBuilder {
             //webapp.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", Boolean.valueOf(enableDirectoryListing).toString());
 
 
-            // Configuration classes. This gives support for multiple features.
-            // The annotationConfiguration is required to support annotations like @WebServlet
-            // See: http://www.eclipse.org/jetty/documentation/current/configuring-webapps.html
-            webapp.setConfigurations(new Configuration[]{
-                    new AnnotationConfiguration()     // Scan container and web app jars looking for @WebServlet, @WebFilter, @WebListener etc
-                    , new WebInfConfiguration()       // Extracts war, orders jars and defines classpath
-                    //, new WebXmlConfiguration()       // Processes a WEB-INF/web.xml file
-                    //, new MetaInfConfiguration()      // Looks in container and webapp jars for META-INF/resources and META-INF/web-fragment.xml
-                    //, new FragmentConfiguration()     // Processes all discovered META-INF/web-fragment.xml files
-                    //, new EnvConfiguration()          // Creates java:comp/env for the webapp, applies a WEB-INF/jetty-env.xml file
-                    //, new PlusConfiguration()         // Processes JNDI related aspects of WEB-INF/web.xml and hooks up naming entries
-                    //, new JettyWebXmlConfiguration()  // Processes a WEB-INF/jetty-web.xml file
-            });
-
             // AnntationConfiguration class scans annotations via its scanForAnnotations(WebAppContext) method.
             // In the method AnnotationConfiguration class scans following path.
             //   container jars
@@ -197,7 +204,6 @@ public class EmbeddedJettyBuilder {
             if(classes != null) {
                 webapp.setExtraClasspath(classes.getPath());  // TODO: Set path to test-classes if needed
             }
-
 
             return webapp;
         }
@@ -216,6 +222,7 @@ public class EmbeddedJettyBuilder {
         //server.dump(System.err);
 
         logger.info("Jetty started at: " + server.getURI());
+
     }
 
     /**
@@ -246,5 +253,4 @@ public class EmbeddedJettyBuilder {
         server.stop();
         logger.debug("Jetty stopped!");
     }
-
 }
