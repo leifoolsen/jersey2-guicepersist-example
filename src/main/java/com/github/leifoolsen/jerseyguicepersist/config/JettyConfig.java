@@ -1,4 +1,4 @@
-package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
+package com.github.leifoolsen.jerseyguicepersist.config;
 
 import com.github.leifoolsen.jerseyguicepersist.constraint.AssertMethodAsTrue;
 import com.github.leifoolsen.jerseyguicepersist.util.StringUtil;

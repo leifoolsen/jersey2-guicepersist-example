@@ -1,5 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.main;
 
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
 import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyFactory;
 import org.eclipse.jetty.server.Server;
 

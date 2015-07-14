@@ -1,4 +1,4 @@
-package com.github.leifoolsen.jerseyguicepersist.main;
+package com.github.leifoolsen.jerseyguicepersist.config;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
-public class PersistenceUnitCfg {
+public class PersistenceUnitConfig {
     @NotBlank
     private String name;
 
@@ -14,9 +14,9 @@ public class PersistenceUnitCfg {
     @NotEmpty
     private Properties properties;
 
-    public PersistenceUnitCfg() {}
+    public PersistenceUnitConfig() {}
 
-    public PersistenceUnitCfg name(final String name) {
+    public PersistenceUnitConfig name(final String name) {
         this.name = name;
         return this;
     }
@@ -25,7 +25,7 @@ public class PersistenceUnitCfg {
         return name;
     }
 
-    public PersistenceUnitCfg properties(final Properties properties) {
+    public PersistenceUnitConfig properties(final Properties properties) {
         this.properties = properties;
         return this;
     }

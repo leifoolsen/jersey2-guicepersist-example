@@ -1,5 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
 
+import com.github.leifoolsen.jerseyguicepersist.config.JettyConfig;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
 import org.eclipse.jetty.server.NCSARequestLog;

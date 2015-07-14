@@ -1,6 +1,5 @@
-package com.github.leifoolsen.jerseyguicepersist.main;
+package com.github.leifoolsen.jerseyguicepersist.config;
 
-import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyConfig;
 import com.github.leifoolsen.jerseyguicepersist.util.StringUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
 import com.google.common.base.Preconditions;
@@ -97,7 +96,7 @@ public class ApplicationConfig {
         return ValidatorHelper.validate(jettyConfig);
     }
 
-    public static PersistenceUnitCfg persistenceUnitConfig() {
+    public static PersistenceUnitConfig persistenceUnitConfig() {
         Config c = config.getConfig(PU_PATH);
 
         Properties p = new Properties();
@@ -108,10 +107,10 @@ public class ApplicationConfig {
             }
         }
 
-        PersistenceUnitCfg persistenceUnitCfg = new PersistenceUnitCfg()
+        PersistenceUnitConfig persistenceUnitConfig = new PersistenceUnitConfig()
                 .name(c.getString("name"))
                 .properties(p);
 
-        return ValidatorHelper.validate(persistenceUnitCfg);
+        return ValidatorHelper.validate(persistenceUnitConfig);
     }
 }
