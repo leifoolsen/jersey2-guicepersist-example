@@ -98,12 +98,11 @@ public class ApplicationConfig {
 
     public static PersistenceUnitConfig persistenceUnitConfig() {
         Config c = config.getConfig(PU_PATH);
-
         Properties p = new Properties();
         for (String s : c.getStringList("properties")) {
-            List<String> split = Splitter.on('=').trimResults().splitToList(s);
-            if(split.size() > 0) {
-                p.put(split.get(0), split.size() > 1 ? split.get(1) : "");
+            List<String> nameValue = Splitter.on('=').trimResults().splitToList(s);
+            if(nameValue.size() > 0) {
+                p.put(nameValue.get(0), nameValue.size() > 1 ? nameValue.get(1) : "");
             }
         }
 
