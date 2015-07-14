@@ -223,7 +223,7 @@ public class UserRepositoryTest {
 Typically, in a servlet environment, Guice is bootstrapped trough a ServletModule, and the HTTP request 
 [Unit of Work](https://github.com/google/guice/wiki/Transactions) lifecycle is managed trough a PersistFilter.
 The problem with this is that Servlet and JAX-RS are two separate containers, which in turn will lead to difficulties
-maintainling aspects of the application. For example, if we're using the Guice PersistFilter we must handle database
+maintainling various aspects of the application. For example, if we're using the Guice PersistFilter we must handle database
 exceptions both in the Servlet container and in the JAX-RS container. A JAX-RS application shuld (in my opinion) have no 
 knowledge of state and session - so servlets and servlet filters should not be required in JAX-RS. Rather, one can use a 
 [JAX-RS Server Filter](https://jersey.java.net/documentation/latest/user-guide.html#d0e9579) to handle Unit of Work. 
