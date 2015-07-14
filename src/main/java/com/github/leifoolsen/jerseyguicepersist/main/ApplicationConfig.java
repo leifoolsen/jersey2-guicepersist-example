@@ -97,7 +97,7 @@ public class ApplicationConfig {
         return ValidatorHelper.validate(jettyConfig);
     }
 
-    public static PersistenceUnitConfig persistenceUnitConfig() {
+    public static PersistenceUnitCfg persistenceUnitConfig() {
         Config c = config.getConfig(PU_PATH);
 
         Properties p = new Properties();
@@ -108,10 +108,10 @@ public class ApplicationConfig {
             }
         }
 
-        PersistenceUnitConfig persistenceUnitConfig = new PersistenceUnitConfig()
+        PersistenceUnitCfg persistenceUnitCfg = new PersistenceUnitCfg()
                 .name(c.getString("name"))
                 .properties(p);
 
-        return ValidatorHelper.validate(persistenceUnitConfig);
+        return ValidatorHelper.validate(persistenceUnitCfg);
     }
 }
