@@ -12,9 +12,9 @@ public class ValidatorHelper {
 
     private ValidatorHelper() {}
 
-    public static <T> void validate(@NotNull final T bean) {
+    public static <T> T validate(@NotNull final T bean) {
         if(bean == null) {
-            throw new ConstraintViolationException("Bean may not be null.", new HashSet<ConstraintViolation<?>>());
+            throw new ConstraintViolationException("Bean may not be null.", new HashSet<>());
         }
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<T>> constraintViolations = validator.validate(bean);
@@ -25,5 +25,6 @@ public class ValidatorHelper {
                     "First violation is: " + cv.getPropertyPath() + ": "  + cv.getMessage(),
                     new HashSet<ConstraintViolation<?>>(constraintViolations));
         }
+        return bean;
     }
 }

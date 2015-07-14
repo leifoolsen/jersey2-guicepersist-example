@@ -1,7 +1,8 @@
 package com.github.leifoolsen.jerseyguicepersist.rest.api;
 
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
-import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.EmbeddedJettyBuilder;
+import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyFactory;
+import com.github.leifoolsen.jerseyguicepersist.main.ApplicationConfig;
 import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationModel;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
@@ -30,10 +31,12 @@ public class UserResourceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        // Config
+        ApplicationConfig.load("application-test");
+
         // Start the server
-        //server = JettyBootstrap.start(DEFAULT_CONTEXT_PATH, PORT);
-        server = new EmbeddedJettyBuilder().defaultServer().build();
-        EmbeddedJettyBuilder.start(server);
+        server = JettyFactory.createServer(ApplicationConfig.jettyConfig());
+        JettyFactory.start(server);
         assertThat(server.isRunning(), is(true));
 
         // create the client
@@ -57,7 +60,7 @@ public class UserResourceTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        EmbeddedJettyBuilder.stop(server);
+        JettyFactory.stop(server);
     }
 
     @Test

@@ -44,7 +44,30 @@ public class AssertMethodAsTrueTest {
     public void beanBHasInvalidMethodValue() {
         BeanB b = new BeanB();
         ValidatorHelper.validate(b);
-        int i =1;
     }
 
+    @AssertMethodsAsTrue({
+            @AssertMethodAsTrue(value="validatorA", message="A must be greater than B"),
+            @AssertMethodAsTrue(value="validatorMethodB", message="A must be at least twice as big as B")
+    })
+    public static class BeanC {
+        int a = 1;
+        int b = 2;
+
+        public boolean validatorA() { return a > b; }
+        public boolean validatorMethodB() { return a*2 >= b; }
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void beanCIsNotValid() {
+        BeanC c = new BeanC();
+        ValidatorHelper.validate(c);
+    }
+
+    @Test
+    public void beanCIsValid() {
+        BeanC c = new BeanC();
+        c.a = 3;
+        ValidatorHelper.validate(c);
+    }
 }

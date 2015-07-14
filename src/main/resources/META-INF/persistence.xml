@@ -5,6 +5,7 @@
 
     <persistence-unit name="jpa-example" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <mapping-file>META-INF/eclipselink-orm.xml</mapping-file>
         <exclude-unlisted-classes />
         <properties>
         </properties>

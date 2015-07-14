@@ -4,6 +4,7 @@ package com.github.leifoolsen.jerseyguicepersist.repository;
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
+import com.github.leifoolsen.jerseyguicepersist.main.ApplicationConfig;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
@@ -40,6 +41,7 @@ public class UserRepositoryTest {
 
     @BeforeClass
     public static void setUp() {
+        ApplicationConfig.load("application-test");
         injector = Guice.createInjector(new PersistenceModule(), new GuiceModule());
         userRepository = injector.getInstance(UserRepository.class);
     }
