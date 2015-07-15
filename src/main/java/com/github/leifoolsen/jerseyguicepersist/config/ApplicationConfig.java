@@ -1,18 +1,24 @@
 package com.github.leifoolsen.jerseyguicepersist.config;
 
+import com.github.leifoolsen.jerseyguicepersist.util.FileUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.StringUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class ApplicationConfig {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
+
 
     enum Stage {
         DEV("dev"),
@@ -41,15 +47,21 @@ public class ApplicationConfig {
     private static final String ROOT_PATH = "application";
     private static final String JETTY_PATH = ROOT_PATH + ".jettyConfig";
     private static final String PU_PATH = ROOT_PATH + ".persistenceUnitConfig";
+    private static final String APPASSEMBLER_APP_HOME = "app.home";
 
     private static Config config;
 
     private ApplicationConfig() {}
 
     public static void load(final String resourceBaseName) {
-        config = StringUtil.blankToNull(resourceBaseName) == null
-                ? ConfigFactory.load()
-                : ConfigFactory.load(resourceBaseName).withFallback(ConfigFactory.load());
+        if(StringUtil.blankToNull(resourceBaseName) == null) {
+            logger.debug("Loading default config, application.conf");
+            config = ConfigFactory.load();
+        }
+        else {
+            logger.debug("Loading config from: '{}.conf' with fallback: 'application.conf'", resourceBaseName);
+            config = ConfigFactory.load(resourceBaseName).withFallback(ConfigFactory.load());
+        }
     }
 
     public static Config config() {
@@ -60,11 +72,52 @@ public class ApplicationConfig {
         return Stage.get(config.getString(ROOT_PATH + ".stage"));
     }
 
+    public static String appHome() {
+        // If the application is launched from appassembler, then 'app.home' property is set from startapp script
+        // else, location of this jar is used as appHome
+        String appHome = config.hasPath(APPASSEMBLER_APP_HOME)
+                ? config.getString(APPASSEMBLER_APP_HOME)
+                : FileUtil.jarPath(ApplicationConfig.class).toString();
+
+        return appHome.endsWith("classes")
+                ? Paths.get(appHome).getParent().toString()
+                : appHome;
+    }
+
+    public static String workPath() {
+        String workPath = config.hasPath(ROOT_PATH + ".workPath")
+                ? config.getString(ROOT_PATH + ".workPath")
+                : null;
+
+        // resolve(workPath) will generate an absolute path from 'workPath' if workPath starts with '/'
+        // else, path will be absolute from appHome()
+        workPath = StringUtil.blankToNull(workPath) == null
+                ? appHome()
+                : Paths.get(appHome()).resolve(workPath).normalize().toAbsolutePath().toString();
+
+        return workPath;
+    }
+
+    public static String logPath() {
+        String logPath = config.hasPath(ROOT_PATH + ".logPath")
+                ? config.getString(ROOT_PATH + ".logPath")
+                : null;
+
+        // resolve(logPath) will generate an absolute path from 'logPath' if logPath starts with '/'
+        // else, path will be absolute from appHome()
+        logPath = StringUtil.blankToNull(logPath) == null
+                ? workPath()
+                : Paths.get(appHome()).resolve(logPath).normalize().toAbsolutePath().toString();
+
+        return logPath;
+    }
+
     public static JettyConfig jettyConfig() {
 
         Config c = config.getConfig(JETTY_PATH + ".server");
         JettyConfig.ServerConfig serverConfig = new JettyConfig.ServerConfig()
-                .accessLogPath(c.getString("accessLogPath"))
+                .accessLogPath(logPath())
+                .useAccessLog(c.getBoolean("useAccessLog"))
                 .shutdownToken(c.getString("shutDownToken"));
 
         c = config.getConfig(JETTY_PATH + ".threadPool");

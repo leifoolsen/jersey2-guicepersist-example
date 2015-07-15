@@ -2,9 +2,13 @@ package com.github.leifoolsen.jerseyguicepersist.main;
 
 import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
 import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyFactory;
+import com.github.leifoolsen.jerseyguicepersist.util.FileUtil;
 import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private Main() {}
 
@@ -12,6 +16,12 @@ public class Main {
 
         // Load config
         ApplicationConfig.load(isStartedWithAppassembler() ? "application-prod" : "application-dev");
+
+        logger.debug("applicationStartupPath: {}", FileUtil.applicationStartupPath());
+        logger.debug("appHome               : {}", ApplicationConfig.appHome());
+        logger.debug("workPath              : {}", ApplicationConfig.workPath());
+        logger.debug("logPath               : {}", ApplicationConfig.logPath());
+
         Server server = JettyFactory.createServer(ApplicationConfig.jettyConfig());
         JettyFactory.startAndWait(server);
     }

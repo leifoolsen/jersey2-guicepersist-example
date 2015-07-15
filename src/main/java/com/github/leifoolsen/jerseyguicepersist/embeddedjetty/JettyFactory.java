@@ -16,11 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class JettyFactory {
     private static final Logger logger = LoggerFactory.getLogger(JettyFactory.class);
@@ -57,7 +59,7 @@ public class JettyFactory {
             logger.debug("Annotation processing is enabled.");
         }
         catch (ClassNotFoundException e) {
-            logger.debug("Annotation processing is not enabled, missing dependency on jetty-annotations.");
+            logger.info("Annotation processing is not enabled, missing dependency on jetty-annotations.");
         }
 
         // Connector
@@ -69,12 +71,16 @@ public class JettyFactory {
 
 
         // Access log
-        if(serverConfig.accessLogPath() != null) {
-            // TODO: Check if this is correct path on appassembler
-            String logFile = new File(serverConfig.accessLogPath(), JettyConfig.ServerConfig.ACCESS_LOG_FILE).getAbsolutePath();
-            logger.info("Access log @ {}", logFile);
-
-            NCSARequestLog requestLog = new NCSARequestLog(logFile);
+        if(serverConfig.useAccessLog()) {
+            Path logPath = Paths.get(serverConfig.accessLogPath());
+            if (!Files.isDirectory(logPath)) {
+                try {
+                    Files.createDirectory(logPath);
+                } catch (IOException e) {
+                    SneakyThrow.propagate(e);
+                }
+            }
+            NCSARequestLog requestLog = new NCSARequestLog(logPath.resolve(JettyConfig.ServerConfig.ACCESS_LOG_FILE).normalize().toString());
             requestLog.setAppend(true);
             requestLog.setExtended(false);
             requestLog.setLogTimeZone("GMT");

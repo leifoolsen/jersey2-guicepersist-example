@@ -62,10 +62,18 @@ public class JettyConfig {
     public static class ServerConfig {
         public static final String ACCESS_LOG_FILE = "access-yyyy_mm_dd.log";
 
+        private boolean useAccessLog;
         private String accessLogPath;
         private String shutdownToken;
 
         public ServerConfig() {}
+
+        public ServerConfig useAccessLog(final boolean useAccessLog) {
+            this.useAccessLog = useAccessLog;
+            return this;
+        }
+
+        public Boolean useAccessLog() { return useAccessLog; }
 
         public ServerConfig accessLogPath(final String accessLogPath) {
             this.accessLogPath = StringUtil.blankToNull(accessLogPath);
