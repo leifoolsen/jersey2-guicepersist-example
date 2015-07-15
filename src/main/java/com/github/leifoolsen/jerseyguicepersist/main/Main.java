@@ -21,9 +21,10 @@ public class Main {
                     "This could be a config error or the 'org.junit' dependency is not defined with scope test in pom.xml");
         }
         else {
-            logger.info("ApplicationConfig.stage: {}", ApplicationConfig.stage());
+            logger.info("Starting Application with config stage: {}", ApplicationConfig.stage());
         }
 
+        //SysStreamsLogger.bindSystemStreams();;
         Server server = JettyFactory.createServer(ApplicationConfig.jettyConfig());
         JettyFactory.startAndWait(server);
     }

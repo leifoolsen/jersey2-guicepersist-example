@@ -109,8 +109,8 @@ public class JettyFactory {
         }
 
         server.setHandler(handlers);
-        //server.setStopAtShutdown(true);
-        //server.setStopTimeout(5000);
+        server.setStopAtShutdown(true);
+        server.setStopTimeout(5000);
 
         return server;
     }
@@ -160,8 +160,6 @@ public class JettyFactory {
      * Start embedded Jetty server.
      */
     public static void start(final Server server) {
-        logger.debug("Starting Jetty ...");
-
         try {
             server.start();
             //server.dump(System.err);
@@ -169,8 +167,22 @@ public class JettyFactory {
         catch (Exception e) {
             SneakyThrow.propagate(e);
         }
-
         logger.info("Jetty started at: " + server.getURI());
+    }
+
+    /**
+     * Stop embedded Jetty server.
+     */
+    public static void stop(final Server server) {
+        logger.info("Stopping Jetty at: " + server.getURI());
+        try {
+            server.stop();
+            server.join();
+        }
+        catch (Exception e) {
+            SneakyThrow.propagate(e);
+        }
+        logger.debug("Jetty stopped!");
     }
 
     /**
@@ -178,34 +190,22 @@ public class JettyFactory {
      */
     public static void startAndWait(final Server server) {
         start(server);
+        System.out.println("\n" +
+                ">>> ------------------------- <<<<\n" +
+                ">>> PRESS ENTER TO STOP JETTY <<<<\n" +
+                ">>> ------------------------- <<<<");
+
         try {
-            // The use of server.join() will make the current thread join and
-            // wait until the server is done executing.
-            // See: http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html#join()
-            server.join();
+            System.in.read();
         }
-        catch (InterruptedException e) {
-            SneakyThrow.propagate(e);
+        catch (IOException e) {
+            // Do nothing
         }
         finally {
             if(server.isRunning()) {
                 stop(server);
             }
         }
-    }
-
-    /**
-     * Stops embedded Jetty server.
-     */
-    public static void stop(final Server server) {
-        logger.info("Stopping Jetty at: " + server.getURI());
-        try {
-            server.stop();
-        }
-        catch (Exception e) {
-            SneakyThrow.propagate(e);
-        }
-        logger.debug("Jetty stopped!");
     }
 
     /**
