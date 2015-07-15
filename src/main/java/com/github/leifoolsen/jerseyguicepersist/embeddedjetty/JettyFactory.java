@@ -56,7 +56,7 @@ public class JettyFactory {
                     "org.eclipse.jetty.webapp.WebInfConfiguration",         // Extracts war, orders jars and defines classpath
                     "org.eclipse.jetty.annotations.AnnotationConfiguration" // Scan container and web app jars looking for @WebServlet, @WebFilter, @WebListener etc
             );
-            logger.debug("Annotation processing is enabled.");
+            logger.info("Annotation processing is enabled.");
         }
         catch (ClassNotFoundException e) {
             logger.info("Annotation processing is not enabled, missing dependency on jetty-annotations.");
@@ -85,9 +85,11 @@ public class JettyFactory {
             requestLog.setExtended(false);
             requestLog.setLogTimeZone("GMT");
             server.setRequestLog(requestLog);
+
+            logger.info("Access log @ {}", requestLog.getFilename());
         }
         else {
-            logger.debug("Access logging not configured.");
+            logger.info("Access logging not configured.");
         }
 
         // Handlers
@@ -99,7 +101,7 @@ public class JettyFactory {
         // Shutdown handler
         if(serverConfig.shutdownToken() != null) {
             handlers.addHandler(new ShutdownHandler(serverConfig.shutdownToken()));
-            logger.debug("Shutdwonhandler @ " +
+            logger.info("Shutdown handler @ " +
                     UriBuilder.fromUri(server.getURI())
                             .port(serverConnectorConfig.port())
                             .path("shutdown")

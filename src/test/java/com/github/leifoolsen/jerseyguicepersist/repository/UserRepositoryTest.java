@@ -41,7 +41,12 @@ public class UserRepositoryTest {
 
     @BeforeClass
     public static void setUp() {
-        ApplicationConfig.load("application-test");
+        ApplicationConfig.load();
+
+        assertThat("ApplicationConfig.stage() does NOT report Stage.TEST! " +
+                        "This could be a config error or the 'org.junit' dependency is not on class path",
+                ApplicationConfig.stage(), is(ApplicationConfig.Stage.TEST));
+
         injector = Guice.createInjector(new PersistenceModule(), new GuiceModule());
         userRepository = injector.getInstance(UserRepository.class);
     }

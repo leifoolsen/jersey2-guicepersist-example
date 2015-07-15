@@ -32,7 +32,11 @@ public class UserResourceTest {
     @BeforeClass
     public static void setUp() throws Exception {
         // Config
-        ApplicationConfig.load("application-test");
+        ApplicationConfig.load();
+
+        assertThat("ApplicationConfig.stage() does NOT report Stage.TEST! " +
+                        "This could be a config error or the 'org.junit' dependency is not on class path",
+                ApplicationConfig.stage(), is(ApplicationConfig.Stage.TEST));
 
         // Start the server
         server = JettyFactory.createServer(ApplicationConfig.jettyConfig());

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <define name="logPath" class="com.github.leifoolsen.jerseyguicepersist.logback.LoggingPropertiesDefiner">
+        <key>logPath</key>
+    </define>
+
     <!-- See: http://logback.qos.ch/manual/configuration.html#LevelChangePropagator -->
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
@@ -20,13 +24,13 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./logs/app.log</file>
+        <file>${logPath}/app.log</file>
         <encoder>
             <charset>UTF-8</charset>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>./target/test-%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${logPath}/app-%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
     </appender>
 
@@ -35,7 +39,7 @@
              3. Route Logging Messages Based On Level
     -->
     <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./logs/app-error.log</file>
+        <file>${logPath}/app-error.log</file>
         <encoder>
             <charset>UTF-8</charset>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -46,7 +50,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>./target/test-error-%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${logPath}/app-error-%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
     </appender>
 
