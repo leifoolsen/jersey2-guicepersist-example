@@ -5,6 +5,10 @@
         <key>logPath</key>
     </define>
 
+    <define name="logLevel" class="com.github.leifoolsen.jerseyguicepersist.logback.LoggingPropertiesDefiner">
+        <key>logLevel</key>
+    </define>
+
     <!-- See: http://logback.qos.ch/manual/configuration.html#LevelChangePropagator -->
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
@@ -68,7 +72,7 @@
     </appender>
 
 
-    <logger name="com.github.leifoolsen" level="debug" additivity="false">
+    <logger name="com.github.leifoolsen" level="${logLevel}" additivity="false">
         <appender-ref ref="ASYNC" />
         <appender-ref ref="ASYNC_ERROR" />
         <appender-ref ref="STDOUT" />

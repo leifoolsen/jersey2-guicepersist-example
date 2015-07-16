@@ -20,7 +20,7 @@ public class Main {
         logger.info("Starting Application with config stage: {}", ApplicationConfig.stage());
         if (ApplicationConfig.Stage.TEST.equals(ApplicationConfig.stage())) {
             logger.error("ApplicationConfig.stage() reports Stage.TEST! " +
-                    "This could be a config error or the 'org.junit' dependency is not defined with scope test in pom.xml");
+                    "This could be a config error or the 'org.junit' dependency is defined without scope test in pom.xml");
         }
 
         Server server = JettyFactory.createServer(ApplicationConfig.jettyConfig());

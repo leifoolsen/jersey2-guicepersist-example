@@ -6,7 +6,6 @@ import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
 public class LoggingPropertiesDefiner extends PropertyDefinerBase {
 
     private String key;
-    private String value;
 
     public void setKey(final String key) {
         this.key = key;
@@ -16,6 +15,12 @@ public class LoggingPropertiesDefiner extends PropertyDefinerBase {
     public String getPropertyValue() {
         // Load config
         ApplicationConfig.load();
-        return ApplicationConfig.logPath();
+        if("logPath".equals(key)) {
+            return ApplicationConfig.logPath();
+        }
+        else if("logLevel".equals(key)) {
+            return ApplicationConfig.Stage.PROD.equals(ApplicationConfig.stage()) ? "info" : "debug";
+        }
+        return "Error: unknown key!";
     }
 }
