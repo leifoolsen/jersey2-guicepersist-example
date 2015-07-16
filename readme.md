@@ -4,10 +4,10 @@ use the Guice servlet module or the Guice persist filter - which anyway should b
 JAX-RS container (no state, no session awareness).
 
 ## Set up Guice persist with integration tests
-The first step is to create an entity model and a repository to store and retreive the entities.
+The first step is to create an entity domain and a repository to store and retreive the entities.
 
 ### Domain
-We'll use a simple POJO for this example. 
+We'll use a simple domain model, only one class, for this example. 
 
 ```java
 @XmlRootElement
@@ -52,7 +52,7 @@ public class User implements Serializable {
 ```
 
 ### Repository
-A repository to persist our domain. To ensure that each request get it's own thread safe entity manager, an 
+The repository to persist our domain. To ensure that each request get it's own thread safe entity manager, an 
 ```Provider<EntityManager>``` should be injected rather than injecting the entity manager directly.
 
 ```java
@@ -93,7 +93,8 @@ Only a minimal ```persistence.xml``` is needed. Configuration of the database is
      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
 
     <persistence-unit name="jpa-example" transaction-type="RESOURCE_LOCAL">
-        <emProvider>org.eclipse.persistence.jpa.PersistenceProvider</emProvider>
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <mapping-file>META-INF/eclipselink-orm.xml</mapping-file>
         <exclude-unlisted-classes />
         <properties>
         </properties>
@@ -103,9 +104,6 @@ Only a minimal ```persistence.xml``` is needed. Configuration of the database is
 ```
 
 ### eclipselink-orm.xml
-Eclipselink can not load entity classes via properties. Our entity classes must be added to ```META-INF/eclipselink-orm.xml```. 
-In the ```PersistenceModule``` class we can then load the ```eclipselink-orm.xml``` by setting the properties
-```eclipselink.metadata-source``` and ```eclipselink.metadata-source.xml.file```.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -114,7 +112,8 @@ In the ```PersistenceModule``` class we can then load the ```eclipselink-orm.xml
     version="2.5"
     xsi:schemaLocation="http://www.eclipse.org/eclipselink/xsds/persistence/orm http://www.eclipse.org/eclipselink/xsds/eclipselink_orm_2_5.xsd">
 
-    <entity class="com.github.leifoolsen.jerseyguicepersist.domain.User" />
+    <package>com.github.leifoolsen.jerseyguicepersist.domain</package>
+    <entity class="User" />
 </entity-mappings>
 ```
 
@@ -158,7 +157,6 @@ public class PersistenceModule implements Module {
     }
 
     private static Properties getPersistenceProperties() {
-        // TODO: Properties should be injected via @Named
         Properties properties = new Properties();
         properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
         properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:mymemdb");
