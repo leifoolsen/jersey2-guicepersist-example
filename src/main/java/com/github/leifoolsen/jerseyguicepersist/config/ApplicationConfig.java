@@ -128,8 +128,7 @@ public class ApplicationConfig {
         Config c = config.getConfig(JETTY_PATH + ".server");
         JettyConfig.ServerConfig serverConfig = new JettyConfig.ServerConfig()
                 .accessLogPath(logPath())
-                .useAccessLog(c.getBoolean("useAccessLog"))
-                .shutdownToken(c.getString("shutDownToken"));
+                .useAccessLog(c.getBoolean("useAccessLog"));
 
         c = config.getConfig(JETTY_PATH + ".threadPool");
         JettyConfig.ThreadPoolConfig threadPoolConfig = new JettyConfig.ThreadPoolConfig()
@@ -143,7 +142,8 @@ public class ApplicationConfig {
                 .scheme(c.getString("scheme"))
                 .host(c.getString("host"))
                 .port(c.getInt("port"))
-                .idleTimeout(c.getInt("idleTimeout"));
+                .idleTimeout(c.getInt("idleTimeout"))
+                .shutdownToken(c.getString("shutDownToken"));
 
         c = config.getConfig(JETTY_PATH + ".webAppContext");
         JettyConfig.WebAppContextConfig webAppContextConfig = new JettyConfig.WebAppContextConfig()

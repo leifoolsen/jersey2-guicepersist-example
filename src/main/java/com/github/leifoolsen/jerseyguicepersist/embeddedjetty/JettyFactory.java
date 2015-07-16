@@ -1,5 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
 
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
 import com.github.leifoolsen.jerseyguicepersist.config.JettyConfig;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
@@ -17,8 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,8 +98,8 @@ public class JettyFactory {
         handlers.addHandler(createWebApp(webAppContextConfig));
 
         // Shutdown handler
-        if(serverConfig.shutdownToken() != null) {
-            handlers.addHandler(new ShutdownHandler(serverConfig.shutdownToken()));
+        if(serverConnectorConfig.shutdownToken() != null) {
+            handlers.addHandler(new ShutdownHandler(serverConnectorConfig.shutdownToken(), true, false));
             logger.info("Shutdown handler @ " +
                     UriBuilder.fromUri(server.getURI())
                             .port(serverConnectorConfig.port())
@@ -190,10 +189,23 @@ public class JettyFactory {
      */
     public static void startAndWait(final Server server) {
         start(server);
-        System.out.println("\n" +
-                ">>> ------------------------- <<<<\n" +
-                ">>> PRESS ENTER TO STOP JETTY <<<<\n" +
-                ">>> ------------------------- <<<<");
+
+        JettyConfig.ServerConnectorConfig serverConnectorConfig = ApplicationConfig.jettyConfig().serverConnectorConfig();
+
+        String s = "\n" +
+                ">>>\n" +
+                ">>> PRESS ENTER TO STOP JETTY\n";
+
+        if(serverConnectorConfig.shutdownToken() != null) {
+            s += ">>> OR POST @ " +
+                    UriBuilder.fromUri(server.getURI())
+                            .port(serverConnectorConfig.port())
+                            .path("shutdown")
+                            .queryParam("token", "******").build().toString() + "\n";
+        }
+        s += ">>>";
+
+        System.out.println(s);
 
         try {
             System.in.read();
@@ -207,31 +219,4 @@ public class JettyFactory {
             }
         }
     }
-
-    /**
-     * Shutdown Jetty
-     * @param scheme
-     * @param host
-     * @param port
-     * @param shutdownToken
-     */
-    public static void shutdown(final String scheme, final String host, final int port, final String shutdownToken) {
-        try {
-            UriBuilder builder = UriBuilder.fromPath("").scheme(scheme).port(port).path("shutdown").queryParam("token", shutdownToken);
-            URL url = builder.build().toURL();
-
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.getResponseCode();
-            logger.info(">>> Shutting down server @ " + url + ": " + connection.getResponseMessage());
-        }
-        catch (SocketException e) {
-            logger.info(">>> No server running @ port" + port);
-            // Okay - the server is not running
-        }
-        catch (IOException ioe) {
-            SneakyThrow.propagate(ioe);
-        }
-    }
-
 }

@@ -15,16 +15,14 @@ public class Main {
 
         // Load config
         ApplicationConfig.load();
+        //SysStreamsLogger.bindSystemStreams();;
 
-        if(ApplicationConfig.Stage.TEST.equals(ApplicationConfig.stage())) {
+        logger.info("Starting Application with config stage: {}", ApplicationConfig.stage());
+        if (ApplicationConfig.Stage.TEST.equals(ApplicationConfig.stage())) {
             logger.error("ApplicationConfig.stage() reports Stage.TEST! " +
                     "This could be a config error or the 'org.junit' dependency is not defined with scope test in pom.xml");
         }
-        else {
-            logger.info("Starting Application with config stage: {}", ApplicationConfig.stage());
-        }
 
-        //SysStreamsLogger.bindSystemStreams();;
         Server server = JettyFactory.createServer(ApplicationConfig.jettyConfig());
         JettyFactory.startAndWait(server);
     }

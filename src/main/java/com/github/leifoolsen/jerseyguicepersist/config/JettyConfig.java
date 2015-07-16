@@ -64,7 +64,6 @@ public class JettyConfig {
 
         private boolean useAccessLog;
         private String accessLogPath;
-        private String shutdownToken;
 
         public ServerConfig() {}
 
@@ -81,13 +80,6 @@ public class JettyConfig {
         }
 
         public String accessLogPath() { return accessLogPath; }
-
-        public ServerConfig shutdownToken(final String shutdownToken) {
-            this.shutdownToken = StringUtil.blankToNull(shutdownToken);
-            return this;
-        }
-
-        public String shutdownToken() { return shutdownToken; }
     }
 
 
@@ -154,6 +146,9 @@ public class JettyConfig {
         @Min(0)
         private int idleTimeout = 30000;
 
+        private String shutdownToken;
+
+
         public ServerConnectorConfig() {}
 
         public ServerConnectorConfig scheme(final String scheme) {
@@ -183,6 +178,13 @@ public class JettyConfig {
         }
 
         public int idleTimeout() { return idleTimeout; }
+
+        public ServerConnectorConfig shutdownToken(final String shutdownToken) {
+            this.shutdownToken = StringUtil.blankToNull(shutdownToken);
+            return this;
+        }
+
+        public String shutdownToken() { return shutdownToken; }
     }
 
 
