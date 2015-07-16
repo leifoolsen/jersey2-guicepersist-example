@@ -84,8 +84,8 @@ public class ApplicationConfig {
     }
 
     public static String appHome() {
-        // If the application is launched from appassembler, then 'app.home' property is set from startapp script
-        // else, location of this jar is used as appHome
+        // If the application is launched from appassembler, then 'app.home' property is set from appassembler's startapp script
+        // else, the location of this jar is used as appHome
         String appHome = config.hasPath(APPASSEMBLER_APP_HOME)
                 ? config.getString(APPASSEMBLER_APP_HOME)
                 : FileUtil.jarPath(ApplicationConfig.class).toString();
@@ -100,8 +100,8 @@ public class ApplicationConfig {
                 ? config.getString(ROOT_PATH + ".workPath")
                 : null;
 
-        // resolve(workPath) will generate an absolute path from 'workPath' if workPath starts with '/'
-        // else, path will be absolute from appHome()
+        // .get(appHome).resolve(workPath) will generate an absolute path from 'workPath' if workPath starts with '/'
+        // else, workPath will be joined with appHome()
         workPath = StringUtil.blankToNull(workPath) == null
                 ? appHome()
                 : Paths.get(appHome()).resolve(workPath).normalize().toAbsolutePath().toString();
@@ -114,8 +114,8 @@ public class ApplicationConfig {
                 ? config.getString(ROOT_PATH + ".logPath")
                 : null;
 
-        // resolve(logPath) will generate an absolute path from 'logPath' if logPath starts with '/'
-        // else, path will be absolute from appHome()
+        // .get(appHome).resolve(logPath) will generate an absolute path from 'logPath' if logPath starts with '/'
+        // else, logPath will be joined with appHome()
         logPath = StringUtil.blankToNull(logPath) == null
                 ? workPath()
                 : Paths.get(appHome()).resolve(logPath).normalize().toAbsolutePath().toString();

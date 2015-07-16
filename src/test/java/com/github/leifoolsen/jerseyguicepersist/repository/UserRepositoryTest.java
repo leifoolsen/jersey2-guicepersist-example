@@ -5,6 +5,7 @@ import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
+import com.github.leifoolsen.jerseyguicepersist.sampledata.SampleDomain;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
@@ -72,18 +73,22 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void addUser() {
-        User user = new User("UserLOL", "lollol", true);
+    public void persistUser() {
+        User user = SampleDomain.users().get("LEIFO");
         userRepository.persist(user);
-        assertThat(userRepository.find(user.getId()), is(notNullValue()));
+        assertThat(userRepository.findById(user.getId()), is(notNullValue()));
     }
 
     @Test
     public void findUserByName() {
-        User user = new User("User#2", "useruser", true);
-        userRepository.persist(user);
-        List<User> users = userRepository.findUserByName("User%");
+        List<User> users = userRepository.findByName(SampleDomain.SCOTT);
         assertThat(users, hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void findAllUsersByName() {
+        List<User> users = userRepository.findByName(null);
+        assertThat(users, hasSize(greaterThan(2)));
     }
 
     @Test
@@ -97,14 +102,14 @@ public class UserRepositoryTest {
         User u2 = new User("U2", "u2u2", true);
         userRepository.persist(u2);
 
-        assertThat(userRepository.find(u1.getId()), is(notNullValue()));
-        assertThat(userRepository.find(u2.getId()), is(notNullValue()));
+        assertThat(userRepository.findById(u1.getId()), is(notNullValue()));
+        assertThat(userRepository.findById(u2.getId()), is(notNullValue()));
 
         assertThat(em.isJoinedToTransaction(), is(true));
         em.getTransaction().rollback();
 
-        assertThat(userRepository.find(u1.getId()), is(nullValue()));
-        assertThat(userRepository.find(u2.getId()), is(nullValue()));
+        assertThat(userRepository.findById(u1.getId()), is(nullValue()));
+        assertThat(userRepository.findById(u2.getId()), is(nullValue()));
     }
 
 }

@@ -1,6 +1,8 @@
 package com.github.leifoolsen.jerseyguicepersist.repository;
 
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
+import com.github.leifoolsen.jerseyguicepersist.util.StringUtil;
+import com.google.common.base.MoreObjects;
 import com.google.inject.persist.Transactional;
 
 import javax.inject.Inject;
@@ -25,14 +27,15 @@ public class UserRepository {
         getEntityManager().persist(user);
     }
 
-    public User find(final String id) {
+    public User findById(final String id) {
         return getEntityManager().find(User.class, id);
     }
 
-    public List<User> findUserByName(final String username) {
+    public List<User> findByName(final String username) {
         TypedQuery<User> q = getEntityManager()
                 .createQuery("select u from User u where u.username like :username", User.class)
-                .setParameter("username", username);
+                .setParameter("username", MoreObjects.firstNonNull(StringUtil.blankToNull(username), "%"));
+
         return q.getResultList();
     }
 
