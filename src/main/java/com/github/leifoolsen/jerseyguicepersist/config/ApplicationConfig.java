@@ -73,6 +73,7 @@ public class ApplicationConfig {
         this.appHome = homePath;
         calculateWorkPath();
         calculateLogPath();
+        jettyConfig().serverConfig().accessLogPath(logPath());
         return this;
     }
 

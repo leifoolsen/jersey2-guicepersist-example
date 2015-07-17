@@ -50,7 +50,6 @@ public class ApplicationConfigFactory {
             }
             applicationConfig = unMarshalConfig(config.getConfig(ROOT_PATH).root());
             applicationConfig.appHome(calculateAppHome());
-            applicationConfig.jettyConfig().serverConfig().accessLogPath(applicationConfig.logPath());
             ValidatorHelper.validate(applicationConfig);
         }
         else {
