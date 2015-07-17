@@ -96,11 +96,11 @@ public class ApplicationConfigFactory {
                 .registerTypeAdapter(Date.class, deser)
                 .create();
 
-        String json = applicationConfigToJSON(true);
+        String json = applicationConfigToJSON(configObject, true);
         return gson.fromJson(json, ApplicationConfig.class);
     }
 
-    public static String applicationConfigToJSON(final boolean formatted) {
+    public static String applicationConfigToJSON(final ConfigObject configObject, final boolean formatted) {
         return config.getConfig(ROOT_PATH).root()
                 .render(ConfigRenderOptions.concise().setJson(true).setFormatted(formatted));
     }
