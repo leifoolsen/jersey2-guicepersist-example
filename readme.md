@@ -54,7 +54,7 @@ public class User implements Serializable {
 ### Repository
 The repository to persist our domain. To ensure that each request get it's own thread safe entity manager, an 
 [```Provider<EntityManager>```](https://github.com/google/guice/wiki/InjectingProviders) should be injected rather than 
-injecting the entity manager directly.
+[injecting the entity manager directly](http://stackoverflow.com/questions/12128552/guice-injected-entitymanager-in-multi-threaded-application).
 
 ```java
 @Singleton
