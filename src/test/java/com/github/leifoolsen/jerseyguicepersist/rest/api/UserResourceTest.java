@@ -1,6 +1,7 @@
 package com.github.leifoolsen.jerseyguicepersist.rest.api;
 
 import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyFactory;
 import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationModel;
@@ -33,14 +34,14 @@ public class UserResourceTest {
     @BeforeClass
     public static void setUp() throws Exception {
         // Config
-        ApplicationConfig.load();
+        ApplicationConfigFactory.load();
 
         assertThat("ApplicationConfig.stage() does NOT report Stage.TEST! " +
                         "This could be a config error or the 'org.junit' dependency is not on class path",
-                ApplicationConfig.stage(), is(ApplicationConfig.Stage.TEST));
+                ApplicationConfigFactory.applicationConfig().stage(), is(ApplicationConfig.Stage.TEST));
 
         // Start the server
-        server = JettyFactory.createServer(ApplicationConfig.jettyConfig());
+        server = JettyFactory.createServer(ApplicationConfigFactory.applicationConfig().jettyConfig());
         JettyFactory.start(server);
         assertThat(server.isRunning(), is(true));
 

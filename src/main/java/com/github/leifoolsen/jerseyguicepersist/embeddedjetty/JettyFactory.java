@@ -1,6 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
 
-import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.config.JettyConfig;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
@@ -190,7 +190,7 @@ public class JettyFactory {
     public static void startAndWait(final Server server) {
         start(server);
 
-        JettyConfig.ServerConnectorConfig serverConnectorConfig = ApplicationConfig.jettyConfig().serverConnectorConfig();
+        JettyConfig.ServerConnectorConfig serverConnectorConfig = ApplicationConfigFactory.applicationConfig().jettyConfig().serverConnectorConfig();
 
         String s = "\n" +
                 ">>>\n" +
@@ -208,6 +208,7 @@ public class JettyFactory {
         System.out.println(s);
 
         try {
+            //noinspection ResultOfMethodCallIgnored
             System.in.read();
         }
         catch (IOException e) {

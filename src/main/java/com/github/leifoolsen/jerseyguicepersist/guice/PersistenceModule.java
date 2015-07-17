@@ -1,6 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.guice;
 
-import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.config.PersistenceUnitConfig;
 import com.google.inject.Binder;
 import com.google.inject.Module;
@@ -10,10 +10,10 @@ public class PersistenceModule implements Module {
 
     @Override
     public void configure(Binder binder) {
-        PersistenceUnitConfig persistenceUnitConfig = ApplicationConfig.persistenceUnitConfig();
+        PersistenceUnitConfig puc = ApplicationConfigFactory.applicationConfig().persistenceUnitConfig();
         binder.install(
-                new JpaPersistModule(persistenceUnitConfig.name())
-                        .properties(persistenceUnitConfig.properties())
+                new JpaPersistModule(puc.name())
+                        .properties(puc.properties())
         );
         binder.bind(PersistenceInitializer.class).asEagerSingleton();
     }

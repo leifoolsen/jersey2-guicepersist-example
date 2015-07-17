@@ -8,69 +8,52 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JettyConfig {
     @NotNull
     @Valid
-    private ServerConfig serverConfig;
+    private ServerConfig serverConfig = null;
 
     @NotNull
     @Valid
-    private ThreadPoolConfig threadPoolConfig;
+    private ThreadPoolConfig threadPoolConfig = null;
 
     @NotNull
     @Valid
-    private ServerConnectorConfig serverConnectorConfig;
+    private ServerConnectorConfig serverConnectorConfig = null;
 
     @NotNull
     @Valid
-    private WebAppContextConfig webAppContextConfig;
+    private WebAppContextConfig webAppContextConfig = null;
 
 
-    public JettyConfig() {}
-
-    public JettyConfig serverConfig(final ServerConfig serverConfig) {
-        this.serverConfig = serverConfig;
-        return this;
-    }
+    JettyConfig() {}
 
     public ServerConfig serverConfig() { return serverConfig; }
 
-    public JettyConfig threadPoolConfig(final ThreadPoolConfig threadPoolConfig) {
-        this.threadPoolConfig = threadPoolConfig;
-        return this;
-    }
-
     public ThreadPoolConfig threadPoolConfig() { return threadPoolConfig; }
 
-    public JettyConfig serverConnectorConfig (final ServerConnectorConfig serverConnectorConfig) {
-        this.serverConnectorConfig = serverConnectorConfig;
-        return this;
-    }
-
     public ServerConnectorConfig serverConnectorConfig() { return serverConnectorConfig; }
-
-    public JettyConfig webAppContextConfig (final WebAppContextConfig webAppContextConfig) {
-        this.webAppContextConfig = webAppContextConfig;
-        return this;
-    }
 
     public WebAppContextConfig webAppContextConfig() { return webAppContextConfig; }
 
 
     // -------------------------------
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @AssertMethodAsTrue(value="isValid", message="accessLogPath mey not be NULL")
     public static class ServerConfig {
         public static final String ACCESS_LOG_FILE = "access-yyyy_mm_dd.log";
 
-        private boolean useAccessLog;
-        private String accessLogPath;
+        private boolean useAccessLog = false;
+        private String accessLogPath = null;
 
-        public ServerConfig() {}
-
-        public ServerConfig useAccessLog(final boolean useAccessLog) {
-            this.useAccessLog = useAccessLog;
-            return this;
-        }
+        ServerConfig() {}
 
         public Boolean useAccessLog() { return useAccessLog; }
 
@@ -80,10 +63,16 @@ public class JettyConfig {
         }
 
         public String accessLogPath() { return accessLogPath; }
+
+        public boolean isValid() {
+            return !useAccessLog || StringUtil.blankToNull(accessLogPath) != null;
+        }
     }
 
 
     // -------------------------------
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     @AssertMethodAsTrue(value="isValid", message="maxThreads value must be greater than minThreads value")
     public static class ThreadPoolConfig {
         @Min(8)
@@ -92,46 +81,28 @@ public class JettyConfig {
         @Max(65535)
         private int maxThreads = 200;
 
-        private boolean daemon;
+        private boolean daemon = false;
 
-        private String name;
+        private String name = null;
 
-        public ThreadPoolConfig() {}
+        ThreadPoolConfig() {}
 
         public boolean isValid() {
             return maxThreads > minThreads;
         }
 
-        public ThreadPoolConfig minThreads(final int minThreads) {
-            this.minThreads = minThreads;
-            return this;
-        }
-
         public int minThreads() { return minThreads; }
-
-        public ThreadPoolConfig maxThreads(final int maxThreads) {
-            this.maxThreads = maxThreads;
-            return this;
-        }
 
         public int maxThreads() { return maxThreads; }
 
-        public ThreadPoolConfig daemon(final boolean daemon) {
-            this.daemon = daemon;
-            return this;
-        }
-
         public boolean daemon() { return daemon; }
-
-        public ThreadPoolConfig name(final String name) {
-            this.name = StringUtil.blankToNull(name);
-            return this;
-        }
 
         public String name() { return name; }
     }
 
     // -------------------------------
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ServerConnectorConfig {
         @NotBlank
         private String scheme = "http";
@@ -146,49 +117,25 @@ public class JettyConfig {
         @Min(0)
         private int idleTimeout = 30000;
 
-        private String shutdownToken;
+        private String shutdownToken = null;
 
-
-        public ServerConnectorConfig() {}
-
-        public ServerConnectorConfig scheme(final String scheme) {
-            this.scheme = StringUtil.blankToNull(scheme);
-            return this;
-        }
+        ServerConnectorConfig() {}
 
         public String scheme() { return scheme; }
 
-        public ServerConnectorConfig host(final String host) {
-            this.host = StringUtil.blankToNull(host);
-            return this;
-        }
-
         public String host() { return host; }
-
-        public ServerConnectorConfig port(final int port) {
-            this.port = port;
-            return this;
-        }
 
         public int port() { return port; }
 
-        public ServerConnectorConfig idleTimeout(final int idleTimeout) {
-            this.idleTimeout = idleTimeout;
-            return this;
-        }
-
         public int idleTimeout() { return idleTimeout; }
-
-        public ServerConnectorConfig shutdownToken(final String shutdownToken) {
-            this.shutdownToken = StringUtil.blankToNull(shutdownToken);
-            return this;
-        }
 
         public String shutdownToken() { return shutdownToken; }
     }
 
 
     // -------------------------------
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class WebAppContextConfig {
         @NotBlank
         private String contextPath = "/";
@@ -198,26 +145,11 @@ public class JettyConfig {
 
         private boolean enableDirectoryListing = false;
 
-        public WebAppContextConfig() {}
-
-        public WebAppContextConfig contextPath(final String contextPath) {
-            this.contextPath = StringUtil.blankToNull(contextPath);
-            return this;
-        }
+        WebAppContextConfig() {}
 
         public String contextPath() { return contextPath; }
 
-        public WebAppContextConfig resourceBase(final String resourceBase) {
-            this.resourceBase = StringUtil.blankToNull(resourceBase);
-            return this;
-        }
-
         public String resourceBase() { return resourceBase; }
-
-        public WebAppContextConfig enableDirectoryListing(final boolean enableDirectoryListing) {
-            this.enableDirectoryListing = enableDirectoryListing;
-            return this;
-        }
 
         public boolean enableDirectoryListing() { return enableDirectoryListing; }
     }

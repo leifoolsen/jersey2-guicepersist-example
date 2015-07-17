@@ -2,6 +2,7 @@ package com.github.leifoolsen.jerseyguicepersist.repository;
 
 
 import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfig;
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
@@ -42,11 +43,11 @@ public class UserRepositoryTest {
 
     @BeforeClass
     public static void setUp() {
-        ApplicationConfig.load();
+        ApplicationConfigFactory.load();
 
         assertThat("ApplicationConfig.stage() does NOT report Stage.TEST! " +
                         "This could be a config error or the 'org.junit' dependency is not on class path",
-                ApplicationConfig.stage(), is(ApplicationConfig.Stage.TEST));
+                ApplicationConfigFactory.applicationConfig().stage(), is(ApplicationConfig.Stage.TEST));
 
         injector = Guice.createInjector(new PersistenceModule(), new GuiceModule());
         userRepository = injector.getInstance(UserRepository.class);
