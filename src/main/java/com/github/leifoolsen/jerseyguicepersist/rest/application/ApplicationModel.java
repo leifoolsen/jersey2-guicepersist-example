@@ -1,12 +1,15 @@
 package com.github.leifoolsen.jerseyguicepersist.rest.application;
 
+import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.guice.GuiceModule;
 import com.github.leifoolsen.jerseyguicepersist.guice.PersistenceModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.spi.AbstractContainerLifecycleListener;
 import org.glassfish.jersey.server.spi.Container;
 import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
@@ -39,12 +42,17 @@ public class ApplicationModel extends ResourceConfig {
 
         logger.debug("Initializing ...");
 
-        //configureJerseyLogging();
+        bridgeJulToSlf4J();
 
         guiceHK2Integration(serviceLocator);
 
-        // Enable LoggingFilter & output entity.
-        //registerInstances(new LoggingFilter(java.util.logging.Logger.getLogger(this.getClass().getName()), true));
+        if(ApplicationConfigFactory.applicationConfig().jerseyTraceLogging()) {
+            // Enable LoggingFilter & output entity.
+            registerInstances(new LoggingFilter(java.util.logging.Logger.getLogger(this.getClass().getName()), true));
+
+            // Enable Tracing support.
+            property(ServerProperties.TRACING, "ALL");
+        }
 
         // Invoke startup and shutdown of app
         register(ApplicationLifecycleListener.class);
@@ -59,7 +67,7 @@ public class ApplicationModel extends ResourceConfig {
     }
 
     // make Jersey log through SLF4J
-    private static void configureJerseyLogging() {
+    private static void bridgeJulToSlf4J() {
         // Jersey uses java.util.logging. Bridge jul to slf4j
         java.util.logging.LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -89,12 +97,12 @@ public class ApplicationModel extends ResourceConfig {
 
         @Override
         public void onStartup(Container container) {
-            logger.info(">>> Application Startup");
+            logger.info(">>> Application startup");
         }
 
         @Override
         public void onShutdown(Container container) {
-            logger.info(">>> Application Shutdown");
+            logger.info(">>> Application shutdown");
 
             // Stop persistence service
             service.stop();

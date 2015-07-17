@@ -48,6 +48,7 @@ public class ApplicationConfig {
     private String appHome;
     private String workPath;
     private String logPath;
+    private boolean jerseyTraceLogging = false;
 
     @NotNull
     @Valid
@@ -80,6 +81,8 @@ public class ApplicationConfig {
     public String workPath() { return workPath; }
 
     public String logPath() { return logPath; }
+
+    public boolean jerseyTraceLogging() { return jerseyTraceLogging; }
 
     public JettyConfig jettyConfig() { return jettyConfig; }
 
