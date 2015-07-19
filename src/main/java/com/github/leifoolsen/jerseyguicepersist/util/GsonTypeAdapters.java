@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 // See: https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1
 // See: http://www.javacreed.com/gson-typeadapter-example/
 // See: https://sites.google.com/site/gson/gson-user-guide#TOC-Writing-a-Deserializer
+// See: https://github.com/gkopff/gson-javatime-serialisers/
 
 public class GsonTypeAdapters {
 
@@ -27,14 +28,14 @@ public class GsonTypeAdapters {
     }
 
     public static JsonDeserializer<LocalDate> localDateDeserializer() {
-        // See: https://github.com/gkopff/gson-javatime-serialisers/blob/master/src/main/java/com/fatboyindustrial/gsonjavatime/LocalDateConverter.java
         return (json, typeOfT, context) -> json == null
                 ? null
                 : FORMATTER.parse(json.getAsString(), LocalDate::from);
     }
 
     public static JsonSerializer<LocalDate> localDateSerializer() {
-        // See: https://github.com/gkopff/gson-javatime-serialisers/blob/master/src/main/java/com/fatboyindustrial/gsonjavatime/LocalDateConverter.java
-        return (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(FORMATTER.format(src));
+        return (src, typeOfSrc, context) -> src == null
+                ? null
+                : new JsonPrimitive(FORMATTER.format(src));
     }
 }
