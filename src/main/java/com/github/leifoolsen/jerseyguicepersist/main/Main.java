@@ -16,6 +16,8 @@ public class Main {
 
         // Load config
         ApplicationConfigFactory.load();
+
+        // Redirect System.out and System.err to slf4j
         //SysStreamsLogger.bindSystemStreams();
 
         logger.info("Starting Application with config stage: {}", ApplicationConfigFactory.applicationConfig().stage());

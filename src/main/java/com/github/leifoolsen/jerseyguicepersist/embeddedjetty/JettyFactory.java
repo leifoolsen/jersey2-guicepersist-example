@@ -2,8 +2,10 @@ package com.github.leifoolsen.jerseyguicepersist.embeddedjetty;
 
 import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.config.JettyConfig;
+import com.github.leifoolsen.jerseyguicepersist.util.FileUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
+import com.google.common.base.Joiner;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -18,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -146,10 +147,15 @@ public class JettyFactory {
         //   WEB-INF/classes
         //   WEB-INF/libs
         //
-        // In exploded mode we also need Jetty to scan the "target/classes" directory for annotations
-        URL location = JettyFactory.class.getProtectionDomain().getCodeSource().getLocation();
-        if(location != null) {
-            webapp.setExtraClasspath(location.getPath());  // TODO: Set path to test-classes if needed
+        // In exploded mode we also need Jetty to scan the "target/classes" and "target/test-classes" directory for annotations
+        final Path classesPath = FileUtil.classesPath();
+        final Path testClassesPath = FileUtil.testClassesPath();
+
+        if(classesPath != null) {
+            final String path = Joiner.on(";").skipNulls()
+                    .join(classesPath.toAbsolutePath(), testClassesPath != null ? testClassesPath.toAbsolutePath() : null);
+            logger.info("Running Jetty i exploded mode with extra class path @ {}", path);
+            webapp.setExtraClasspath(path);
         }
 
         return webapp;

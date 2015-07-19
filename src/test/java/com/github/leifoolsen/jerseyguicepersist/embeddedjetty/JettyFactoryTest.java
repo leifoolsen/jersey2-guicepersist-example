@@ -16,7 +16,7 @@ public class JettyFactoryTest {
         ApplicationConfigFactory.load();
 
         assertThat("ApplicationConfig.stage() does NOT report Stage.TEST! " +
-                        "This could be a config error or the 'org.junit' dependency is not on class path",
+                        "This could be a config error or 'test-classes' is not on class path",
                 ApplicationConfigFactory.applicationConfig().stage(), is(ApplicationConfig.Stage.TEST));
 
         Server server = JettyFactory.createServer(ApplicationConfigFactory.applicationConfig().jettyConfig());

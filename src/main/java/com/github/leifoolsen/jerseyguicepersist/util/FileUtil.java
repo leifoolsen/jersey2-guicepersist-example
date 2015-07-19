@@ -1,8 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.util;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtil {
-    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {}
 
@@ -23,8 +20,29 @@ public class FileUtil {
                 : p;
     }
 
-    public static Path applicationStartupPath() {
-        return Paths.get("").normalize().toAbsolutePath();
+    public static boolean isExploded() {
+        return Thread.currentThread().getContextClassLoader().getResource("") != null;
+    }
+
+    public static Path classesPath() {
+        final URL url = Thread.currentThread().getContextClassLoader().getResource("");
+        if(url != null) {
+            Path p = Paths.get(toUri(url));
+            if(p.endsWith("test-classes")) {
+                p = p.getParent().resolve("classes");
+            }
+            return p.normalize();
+        }
+        return null;
+    }
+
+    public static Path testClassesPath() {
+        final URL url = Thread.currentThread().getContextClassLoader().getResource("");
+        if(url != null) {
+            final Path p = Paths.get(toUri(url));
+            return p.endsWith("test-classes") ? p.normalize() : null;
+        }
+        return null;
     }
 
     private static URI toUri(final URL url) {
@@ -33,7 +51,7 @@ public class FileUtil {
         }
         catch (URISyntaxException e) {
             SneakyThrow.propagate(e);
-            return null; // Should not happen
+            throw new RuntimeException(); // Should not happen
         }
     }
 }

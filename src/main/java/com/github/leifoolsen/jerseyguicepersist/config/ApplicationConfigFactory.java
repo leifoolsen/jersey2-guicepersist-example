@@ -1,15 +1,13 @@
 package com.github.leifoolsen.jerseyguicepersist.config;
 
 import com.github.leifoolsen.jerseyguicepersist.util.FileUtil;
+import com.github.leifoolsen.jerseyguicepersist.util.GsonTypeAdapters;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.StringUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
 import com.google.common.reflect.ClassPath;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -18,10 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ApplicationConfigFactory {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigFactory.class);
@@ -66,33 +60,8 @@ public class ApplicationConfigFactory {
 
     private static ApplicationConfig unMarshalConfig(final ConfigObject configObject) {
 
-        // See: https://sites.google.com/site/gson/gson-type-adapters-for-common-classes
-        // See: https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1
-        // See: http://www.javacreed.com/gson-typeadapter-example/
-        JsonSerializer<Date> ser = (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(src.getTime());
-
-        JsonDeserializer<Date> deser = (json, typeOfT, context) -> {
-            if(json != null) {
-                try {
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-                    return df.parse(json.getAsString());
-                } catch (ParseException e) {
-                    try {
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                        return df.parse(json.getAsString());
-                    } catch (ParseException e2) {
-                        throw new IllegalArgumentException(e2);
-                    }
-                }
-            }
-            else {
-                return null;
-            }
-        };
-
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Date.class, ser)
-                .registerTypeAdapter(Date.class, deser)
+                .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
                 .create();
 
         String json = applicationConfigToJSON(configObject, true);
@@ -117,7 +86,7 @@ public class ApplicationConfigFactory {
     }
 
     public static String resourceBaseName() {
-        if(isJunitInClassPath()) {
+        if(FileUtil.testClassesPath() != null) {
             return "application-test";
         }
         else {
