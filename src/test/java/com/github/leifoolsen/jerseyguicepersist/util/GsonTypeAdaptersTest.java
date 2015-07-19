@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -26,14 +27,44 @@ public class GsonTypeAdaptersTest {
     private static final String JSON_DATE = "\"2015-07-19\"";
     private static final LocalDate LOCAL_DATE = LocalDate.parse(ISO_DATE);
 
+    private static final String ISO_DATE_TIME = "2015-07-19T13:14:15";
+    private static final String JSON_DATE_TIME = "\"2015-07-19T13:14:15\"";
+    private static final String JSON_DATE_TIME_AT_MIDNIGHT = "\"2015-07-19T00:00:00\"";
+    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse(ISO_DATE_TIME);
+
+    @Test
+    public void localDateTimeDeserializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, GsonTypeAdapters.localDateTimeDeserializer())
+                .create();
+
+        final LocalDateTime localDateTime = gson.fromJson(JSON_DATE_TIME, LocalDateTime.class);
+        assertThat(localDateTime, is(LOCAL_DATE_TIME));
+
+        final LocalDateTime localDateTimeAtMidnight = gson.fromJson(JSON_DATE, LocalDateTime.class);
+        assertThat(localDateTimeAtMidnight.toLocalDate(), is(LOCAL_DATE));
+    }
+
+    @Test
+    public void localDateTimeSerializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, GsonTypeAdapters.localDateTimeSerializer())
+                .create();
+
+        final String json = gson.toJson(LOCAL_DATE_TIME);
+        assertThat(json, is(JSON_DATE_TIME));
+
+        final String jsonAtMidnight = gson.toJson(LOCAL_DATE.atStartOfDay());
+        assertThat(jsonAtMidnight, is(JSON_DATE_TIME_AT_MIDNIGHT));
+    }
+
     @Test
     public void localDateDeserializer() {
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, GsonTypeAdapters.localDateDeserializer())
                 .create();
 
-        final String json = JSON_DATE;
-        final LocalDate localDate = gson.fromJson(json, LocalDate.class);
+        final LocalDate localDate = gson.fromJson(JSON_DATE, LocalDate.class);
         assertThat(localDate, is(LOCAL_DATE));
     }
 
