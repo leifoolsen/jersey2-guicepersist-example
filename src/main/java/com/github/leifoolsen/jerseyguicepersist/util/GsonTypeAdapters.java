@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,11 +21,11 @@ public class GsonTypeAdapters {
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    public static final DateTimeFormatter INSTANT_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
     private GsonTypeAdapters() {}
 
     public static JsonDeserializer<String> stringDeserializerEmptyToNull() {
-
         return (json, typeOfT, context) -> json == null
                 ? null
                 : Strings.emptyToNull(json.getAsString().trim());
@@ -61,4 +62,15 @@ public class GsonTypeAdapters {
                 : new JsonPrimitive(DATE_TIME_FORMATTER.format(src));
     }
 
+    public static JsonDeserializer<Instant> instantDeserializer() {
+        return (json, typeOfT, context) -> json == null
+                ? null
+                : INSTANT_FORMATTER.parse(json.getAsString(), Instant::from);
+    }
+
+    public static JsonSerializer<Instant> instantSerializer() {
+        return (src, typeOfSrc, context) -> src == null
+                ? null
+                : new JsonPrimitive(INSTANT_FORMATTER.format(src));
+    }
 }

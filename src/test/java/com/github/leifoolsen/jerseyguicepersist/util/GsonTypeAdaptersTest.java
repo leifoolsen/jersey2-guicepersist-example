@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringReader;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -31,6 +32,30 @@ public class GsonTypeAdaptersTest {
     private static final String JSON_DATE_TIME = "\"2015-07-19T13:14:15\"";
     private static final String JSON_DATE_TIME_AT_MIDNIGHT = "\"2015-07-19T00:00:00\"";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse(ISO_DATE_TIME);
+
+    private static final String ISO_INSTANT = "2015-07-19T13:14:15Z";
+    private static final String JSON_INSTANT = "\"2015-07-19T13:14:15Z\"";
+    private static final Instant INSTANT = Instant.parse(ISO_INSTANT);
+
+    @Test
+    public void InstantDeserializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Instant.class, GsonTypeAdapters.instantDeserializer())
+                .create();
+
+        final Instant instant = gson.fromJson(JSON_INSTANT, Instant.class);
+        assertThat(instant, is(INSTANT));
+    }
+
+    @Test
+    public void instantSerializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Instant.class, GsonTypeAdapters.instantSerializer())
+                .create();
+
+        final String json = gson.toJson(INSTANT);
+        assertThat(json, is(JSON_INSTANT));
+    }
 
     @Test
     public void localDateTimeDeserializer() {
