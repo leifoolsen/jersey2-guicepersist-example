@@ -13,25 +13,50 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringReader;
+import java.time.LocalDate;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class GsonTypeAdaptersTest {
+    private static final String ISO_DATE = "2015-07-19";
+    private static final String JSON_DATE = "\"2015-07-19\"";
+    private static final LocalDate LOCAL_DATE = LocalDate.parse(ISO_DATE);
 
     @Test
-    public void fromJson() {
-
-        JsonObject jsonObject = asJsonObject();
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
+    public void localDateDeserializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, GsonTypeAdapters.localDateDeserializer())
                 .create();
 
-        MyParent parent = gson.fromJson(jsonObject.toString(), MyParent.class);
+        final String json = JSON_DATE;
+        final LocalDate localDate = gson.fromJson(json, LocalDate.class);
+        assertThat(localDate, is(LOCAL_DATE));
+    }
 
+    @Test
+    public void localDateSerializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, GsonTypeAdapters.localDateSerializer())
+                .create();
+
+        final String json = gson.toJson(LOCAL_DATE);
+        assertThat(json, is(JSON_DATE));
+    }
+
+    @Test
+    public void fromJsonToObject() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
+                .registerTypeAdapter(LocalDate.class, GsonTypeAdapters.localDateDeserializer())
+                .create();
+
+        final JsonObject jsonObject = asJsonObject();
+        final MyParent parent = gson.fromJson(jsonObject.toString(), MyParent.class);
+        assertThat(parent.aDate, is(LOCAL_DATE));
         assertThat(parent.aString, is(nullValue()));
         assertThat(parent.anInt, is(0));
         assertThat(parent.myChild, notNullValue());
@@ -40,27 +65,31 @@ public class GsonTypeAdaptersTest {
     }
 
     @Test
-    public void toJson() {
+    public void fromObjectToJson() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, GsonTypeAdapters.localDateSerializer())
+                .create();
 
-        Gson gson = new GsonBuilder().create();
-        MyParent myParent = asMyParent();
-        String json = gson.toJson(myParent);
+        final MyParent myParent = asMyParent();
+        final String json = gson.toJson(myParent);
 
         assertThat(Splitter.on("aString").splitToList(json).size() - 1, is(1));
+        assertThat(json, containsString(ISO_DATE));
     }
 
     private static JsonObject asJsonObject() {
 
-        JsonReader reader = Json.createReader(
+        final JsonReader reader = Json.createReader(
                 new StringReader(("{'aString':'foostring', 'anInt':101}").replace('\'', '"')));
 
-        JsonObject childAsJsonObject = reader.readObject();
+        final JsonObject childAsJsonObject = reader.readObject();
         reader.close();
 
         // See: http://docs.oracle.com/javaee/7/api/javax/json/JsonObject.html
-        JsonBuilderFactory factory = Json.createBuilderFactory(null);
+        final JsonBuilderFactory factory = Json.createBuilderFactory(null);
         return factory.createObjectBuilder()
                 .add("aString", "")
+                .add("aDate", ISO_DATE)
                 .add("anInt", 0)
                 .add("myChild", childAsJsonObject)
                 .build();
@@ -82,6 +111,7 @@ public class GsonTypeAdaptersTest {
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class MyParent {
+        private LocalDate aDate = LOCAL_DATE;
         private String aString;
         private int anInt;
         private MyChild myChild;
