@@ -1,5 +1,6 @@
 package com.github.leifoolsen.jerseyguicepersist.config;
 
+import com.github.leifoolsen.jerseyguicepersist.util.GsonTypeAdapters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.typesafe.config.Config;
@@ -7,13 +8,11 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigRenderOptions;
 import org.junit.Test;
 
-import java.util.Date;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-public class ConfigJsonGsonUnMarshalTest {
+public class ConfigJsonGsonUnmarshalTest {
 
     private static final String JETTY_CONFIG_ROOT = "application.jettyConfig";
 
@@ -26,10 +25,11 @@ public class ConfigJsonGsonUnMarshalTest {
 
         assertThat(config, notNullValue());
 
-        Gson gson = new GsonBuilder().create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
+                .create();
 
-        String json = config.root()
-                .render(ConfigRenderOptions.concise().setJson(true).setFormatted(true));
+        String json = config.root().render(ConfigRenderOptions.concise().setJson(true).setFormatted(true));
 
         JettyConfig jettyConfig = gson.fromJson(json, JettyConfig.class);
 
