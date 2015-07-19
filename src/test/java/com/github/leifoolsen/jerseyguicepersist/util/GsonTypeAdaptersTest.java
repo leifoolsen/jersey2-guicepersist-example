@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -26,19 +27,44 @@ import static org.junit.Assert.assertThat;
 public class GsonTypeAdaptersTest {
     private static final String ISO_DATE = "2015-07-19";
     private static final String JSON_DATE = "\"2015-07-19\"";
-    private static final LocalDate LOCAL_DATE = LocalDate.parse(ISO_DATE);
+    private static final LocalDate LOCAL_DATE = LocalDate.parse(ISO_DATE, GsonTypeAdapters.DATE_FORMATTER);
 
     private static final String ISO_DATE_TIME = "2015-07-19T13:14:15";
     private static final String JSON_DATE_TIME = "\"2015-07-19T13:14:15\"";
     private static final String JSON_DATE_TIME_AT_MIDNIGHT = "\"2015-07-19T00:00:00\"";
-    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse(ISO_DATE_TIME);
+    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse(ISO_DATE_TIME, GsonTypeAdapters.DATE_TIME_FORMATTER);
 
     private static final String ISO_INSTANT = "2015-07-19T13:14:15Z";
     private static final String JSON_INSTANT = "\"2015-07-19T13:14:15Z\"";
     private static final Instant INSTANT = Instant.parse(ISO_INSTANT);
 
+    private static final String ISO_OFFSET_DATE_TIME = "2015-07-19T13:14:15+01:00";
+    private static final String JSON_OFFSET_DATE_TIME = "\"2015-07-19T13:14:15+01:00\"";
+    private static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.parse(ISO_OFFSET_DATE_TIME, GsonTypeAdapters.OFFSET_DATE_TIME_FORMATTER);
+
+
     @Test
-    public void InstantDeserializer() {
+    public void offsetDateTimeDeserializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(OffsetDateTime.class, GsonTypeAdapters.offsetDateTimeDeserializer())
+                .create();
+
+        final OffsetDateTime offsetDateTime = gson.fromJson(JSON_OFFSET_DATE_TIME, OffsetDateTime.class);
+        assertThat(offsetDateTime, is(OFFSET_DATE_TIME));
+    }
+
+    @Test
+    public void offsetDateTimeSerializer() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(OffsetDateTime.class, GsonTypeAdapters.offsetDateTimeSerializer())
+                .create();
+
+        final String json = gson.toJson(OFFSET_DATE_TIME);
+        assertThat(json, is(JSON_OFFSET_DATE_TIME));
+    }
+
+    @Test
+    public void instantDeserializer() {
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, GsonTypeAdapters.instantDeserializer())
                 .create();

@@ -8,6 +8,7 @@ import com.google.gson.JsonSerializer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -22,6 +23,10 @@ public class GsonTypeAdapters {
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     public static final DateTimeFormatter INSTANT_FORMATTER = DateTimeFormatter.ISO_INSTANT;
+    public static final DateTimeFormatter OFFSET_DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
+    public static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
+    public static final DateTimeFormatter ZONE_DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
+    public static final DateTimeFormatter ZONE_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     private GsonTypeAdapters() {}
 
@@ -72,5 +77,24 @@ public class GsonTypeAdapters {
         return (src, typeOfSrc, context) -> src == null
                 ? null
                 : new JsonPrimitive(INSTANT_FORMATTER.format(src));
+    }
+
+    public static JsonDeserializer<OffsetDateTime> offsetDateTimeDeserializer() {
+        return (json, typeOfT, context) -> {
+            try {
+                return json == null
+                        ? null
+                        : OFFSET_DATE_TIME_FORMATTER.parse(json.getAsString(), OffsetDateTime::from);
+            }
+            catch (DateTimeParseException e) {
+                return OFFSET_DATE_FORMATTER.parse(json.getAsString(), OffsetDateTime::from);
+            }
+        };
+    }
+
+    public static JsonSerializer<OffsetDateTime> offsetDateTimeSerializer() {
+        return (src, typeOfSrc, context) -> src == null
+                ? null
+                : new JsonPrimitive(OFFSET_DATE_TIME_FORMATTER.format(src));
     }
 }
