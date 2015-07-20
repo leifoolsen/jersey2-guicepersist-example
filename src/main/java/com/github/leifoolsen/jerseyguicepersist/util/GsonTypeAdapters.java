@@ -5,12 +5,15 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 // See: https://sites.google.com/site/gson/gson-type-adapters-for-common-classes
 // See: https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1
@@ -27,6 +30,10 @@ public class GsonTypeAdapters {
     public static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
     public static final DateTimeFormatter ZONED_DATE_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
     public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+
+    public static final DateFormat JUL_DATE_LONG = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    public static final DateFormat JUL_DATE_SHORT = new SimpleDateFormat("yyyy-MM-dd");
+
 
     private GsonTypeAdapters() {}
 
@@ -97,4 +104,11 @@ public class GsonTypeAdapters {
                 ? null
                 : new JsonPrimitive(OFFSET_DATE_TIME_FORMATTER.format(src));
     }
+
+    public static JsonDeserializer<Date> julDateDeserializer() {
+        return (json, typeOfT, context) -> json == null
+                ? null
+                : DateLocalDateUtil.stringToDate(json.getAsString());
+    }
+
 }

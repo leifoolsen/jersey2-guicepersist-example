@@ -133,7 +133,7 @@ public class DateLocalDateUtil {
     }
 
     /**
-     * Converts {@code java.util.Date} to string.
+     * Converts {@link java.util.Date} to string.
      */
     public static String dateToString(final Date date) {
         return dateToString(dateToLocalDate(date));
@@ -147,16 +147,15 @@ public class DateLocalDateUtil {
     }
 
     /**
-     * Converts string to {@code java.util.Date}.
+     * Converts string to {@link java.util.Date}.
      */
     public static Date stringToDate(final String date) {
         if(MoreObjects.firstNonNull(date, "").trim().length() > 0) {
             try {
-                LocalDate d = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
-                return toDate(d);
+                return toDate(LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME));
             }
             catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Unparsable date: " + date, e);
+                return toDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE));
             }
         }
         return null;

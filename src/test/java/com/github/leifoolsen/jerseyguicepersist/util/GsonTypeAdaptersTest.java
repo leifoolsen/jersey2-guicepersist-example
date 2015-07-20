@@ -13,10 +13,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -126,6 +129,23 @@ public class GsonTypeAdaptersTest {
 
         final String json = gson.toJson(LOCAL_DATE);
         assertThat(json, is(JSON_DATE));
+    }
+
+    @Test
+    public void julDateDeserializer() throws ParseException {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, GsonTypeAdapters.julDateDeserializer())
+                .create();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = sdf.parse(ISO_DATE);
+        Date julDate = gson.fromJson(JSON_DATE, Date.class);
+        assertThat(julDate, is(d));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        d = sdf.parse(ISO_DATE_TIME);
+        julDate = gson.fromJson(JSON_DATE_TIME, Date.class);
+        assertThat(julDate, is(d));
     }
 
     @Test
