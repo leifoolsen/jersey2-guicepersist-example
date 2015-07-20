@@ -42,7 +42,6 @@ public class GsonTypeAdaptersTest {
     private static final String JSON_OFFSET_DATE_TIME = "\"2015-07-19T13:14:15+01:00\"";
     private static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.parse(ISO_OFFSET_DATE_TIME, GsonTypeAdapters.OFFSET_DATE_TIME_FORMATTER);
 
-
     @Test
     public void offsetDateTimeDeserializer() {
         final Gson gson = new GsonBuilder()
@@ -130,6 +129,64 @@ public class GsonTypeAdaptersTest {
     }
 
     @Test
+    public void stringDeserializerEmptyToNull() {
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
+                .create();
+
+        String input = null;
+        String output = gson.fromJson(input, String.class);
+        assertThat(output, is(nullValue()));
+
+        input = "";
+        output = gson.fromJson(input, String.class);
+        assertThat(output, is(nullValue()));
+
+        input = "foostring";
+        output = gson.fromJson(input, String.class);
+        assertThat(output, is("foostring"));
+
+        input = "           foostring     ";
+        output = gson.fromJson(input, String.class);
+        assertThat(output, is("foostring"));
+    }
+
+    @Test
+    public void stringSerializer() {
+        final Gson gson = new GsonBuilder().create();
+
+        String input = null;
+        String output = gson.toJson(input);
+        assertThat(output, is("null"));
+
+        input = "";
+        output = gson.fromJson(input, String.class);
+        assertThat(output, is(nullValue()));
+
+        input = "foostring";
+        output = gson.toJson(input);
+        assertThat(output, is("\"foostring\""));
+
+        input = "        foostring  ";
+        output = gson.toJson(input);
+        assertThat(output, is("\"        foostring  \""));
+
+        EmbeddedString embeddedString = new EmbeddedString();
+
+        embeddedString.embedded = null;
+        output = gson.toJson(embeddedString);
+        assertThat(output, is("{}"));
+
+        embeddedString.embedded = "";
+        output = gson.toJson(embeddedString);
+        assertThat(output, is("{\"embedded\":\"\"}"));
+
+        embeddedString.embedded = "foostring";
+        output = gson.toJson(embeddedString);
+        assertThat(output, is("{\"embedded\":\"foostring\"}"));
+    }
+
+    @Test
     public void fromJsonToObject() {
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(String.class, GsonTypeAdapters.stringDeserializerEmptyToNull())
@@ -176,6 +233,13 @@ public class GsonTypeAdaptersTest {
                 .add("myChild", childAsJsonObject)
                 .build();
     }
+
+
+
+    private static class EmbeddedString {
+        String embedded;
+    }
+
 
     private static MyParent asMyParent() {
         MyChild myChild = new MyChild();

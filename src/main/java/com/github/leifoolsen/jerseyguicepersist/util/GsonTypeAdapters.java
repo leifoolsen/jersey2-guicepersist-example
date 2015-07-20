@@ -25,8 +25,8 @@ public class GsonTypeAdapters {
     public static final DateTimeFormatter INSTANT_FORMATTER = DateTimeFormatter.ISO_INSTANT;
     public static final DateTimeFormatter OFFSET_DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
     public static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
-    public static final DateTimeFormatter ZONE_DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
-    public static final DateTimeFormatter ZONE_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
+    public static final DateTimeFormatter ZONED_DATE_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+    public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     private GsonTypeAdapters() {}
 
