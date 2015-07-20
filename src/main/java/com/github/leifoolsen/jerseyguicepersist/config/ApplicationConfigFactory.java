@@ -31,6 +31,7 @@ public class ApplicationConfigFactory {
 
     public static String load() {
 
+        // Logger may not be available yet. Returning a log message which can be logged elsewhere
         final String logMessage;
 
         if(config == null) {
@@ -50,7 +51,6 @@ public class ApplicationConfigFactory {
             logMessage = "Config file was already loaded";
         }
 
-        // Logger may not be available yet. Returning a log message which can be logged elsewhere
         return logMessage;
     }
 

@@ -149,9 +149,8 @@ public class JettyFactory {
         //
         // In exploded mode we also need Jetty to scan the "target/classes" and "target/test-classes" directory for annotations
         final Path classesPath = FileUtil.classesPath();
-        final Path testClassesPath = FileUtil.testClassesPath();
-
         if(classesPath != null) {
+            final Path testClassesPath = FileUtil.testClassesPath();
             final String path = Joiner.on(";").skipNulls()
                     .join(classesPath.toAbsolutePath(), testClassesPath != null ? testClassesPath.toAbsolutePath() : null);
             logger.info("Running Jetty i exploded mode with extra class path @ {}", path);
