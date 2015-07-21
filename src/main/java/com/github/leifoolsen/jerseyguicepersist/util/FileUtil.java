@@ -52,7 +52,7 @@ public class FileUtil {
         }
         catch (URISyntaxException e) {
             SneakyThrow.propagate(e);
-            throw new RuntimeException(); // Should not happen
+            throw new RuntimeException(e); // Should not happen
         }
     }
 
@@ -62,7 +62,7 @@ public class FileUtil {
         }
         catch (MalformedURLException e) {
             SneakyThrow.propagate(e);
-            throw new RuntimeException(); // Should not happen
+            throw new RuntimeException(e); // Should not happen
         }
     }
 }
