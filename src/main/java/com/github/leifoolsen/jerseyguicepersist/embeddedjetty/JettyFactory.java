@@ -6,6 +6,7 @@ import com.github.leifoolsen.jerseyguicepersist.util.FileUtil;
 import com.github.leifoolsen.jerseyguicepersist.util.SneakyThrow;
 import com.github.leifoolsen.jerseyguicepersist.util.ValidatorHelper;
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ public class JettyFactory {
     private JettyFactory() {}
 
     public static Server createServer(final JettyConfig jettyConfig) {
+
         ValidatorHelper.validate(jettyConfig);
 
         JettyConfig.ServerConfig serverConfig = jettyConfig.serverConfig();
@@ -123,8 +126,9 @@ public class JettyFactory {
 
         webapp.setContextPath(webAppContextConfig.contextPath());
 
-        webapp.setBaseResource(Resource.newClassPathResource(webAppContextConfig.resourceBase()));
-
+        final Resource baseResource = Resource.newClassPathResource(webAppContextConfig.resourceBase());
+        webapp.setBaseResource(baseResource);
+        logger.debug("BaseResource URI: {}", baseResource.getURI());
 
         // Parent loader priority is a class loader setting that Jetty accepts.
         // By default Jetty will behave like most web containers in that it will
@@ -147,18 +151,36 @@ public class JettyFactory {
         //   WEB-INF/classes
         //   WEB-INF/libs
         //
-        // In exploded mode we also need Jetty to scan the "target/classes" and "target/test-classes" directory for annotations
+        // We also need Jetty to scan the the webapp jar (or "target/classes" and "target/test-classes") directory for annotations
+        final URI loc = baseResource.getURI();
+        String extraClasspath = null;
+
+        if("jar".equals(loc.getScheme())) {
+            String s = FileUtil.toURL(loc).getPath();
+            extraClasspath = Splitter.on('!').trimResults().splitToList(s).get(0); // remove  e.g. "!/webapp"
+        }
+
         final Path classesPath = FileUtil.classesPath();
         if(classesPath != null) {
             final Path testClassesPath = FileUtil.testClassesPath();
-            final String path = Joiner.on(";").skipNulls()
-                    .join(classesPath.toAbsolutePath(), testClassesPath != null ? testClassesPath.toAbsolutePath() : null);
-            logger.info("Running Jetty i exploded mode with extra class path @ {}", path);
-            webapp.setExtraClasspath(path);
+            extraClasspath = Joiner.on(";")
+                    .skipNulls()
+                    .join(extraClasspath,
+                            classesPath.toAbsolutePath(),
+                            testClassesPath != null ? testClassesPath.toAbsolutePath() : null
+                    );
         }
+
+        if(extraClasspath != null) {
+            logger.info("Extra class path @ {}", extraClasspath);
+            webapp.setExtraClasspath(extraClasspath);
+        }
+
+        // URL location = JettyFactory.class.getProtectionDomain().getCodeSource().getLocation();
 
         return webapp;
     }
+
 
     /**
      * Start embedded Jetty server.
