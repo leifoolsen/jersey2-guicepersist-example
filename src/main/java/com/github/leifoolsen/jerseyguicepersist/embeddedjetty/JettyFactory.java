@@ -45,7 +45,7 @@ public class JettyFactory {
         threadPool.setDaemon(threadPoolConfig.daemon());
         if(threadPoolConfig.name() != null) threadPool.setName(threadPoolConfig.name());
 
-        Server server = new Server(threadPool);
+        final Server server = new Server(threadPool);
 
         // Configuration classes. This gives support for multiple features.
         // The annotationConfiguration is required to support annotations like @WebServlet
@@ -66,7 +66,7 @@ public class JettyFactory {
         }
 
         // Connector
-        ServerConnector connector = new ServerConnector(server);
+        final ServerConnector connector = new ServerConnector(server);
         connector.setHost(serverConnectorConfig.host());
         connector.setPort(serverConnectorConfig.port());
         connector.setIdleTimeout(serverConnectorConfig.idleTimeout());
@@ -75,7 +75,7 @@ public class JettyFactory {
 
         // Access log
         if(serverConfig.useAccessLog()) {
-            Path logPath = Paths.get(serverConfig.accessLogPath());
+            final Path logPath = Paths.get(serverConfig.accessLogPath());
             if (!Files.isDirectory(logPath)) {
                 try {
                     Files.createDirectory(logPath);
@@ -96,7 +96,7 @@ public class JettyFactory {
         }
 
         // Handlers
-        HandlerCollection handlers = new HandlerCollection();
+        final HandlerCollection handlers = new HandlerCollection();
 
         // WebAppContext
         handlers.addHandler(createWebApp(webAppContextConfig));
@@ -122,7 +122,7 @@ public class JettyFactory {
     private static WebAppContext createWebApp(final JettyConfig.WebAppContextConfig webAppContextConfig) {
         // The WebAppContext is the entity that controls the environment in
         // which a web application lives and breathes.
-        WebAppContext webApp = new WebAppContext();
+        final WebAppContext webApp = new WebAppContext();
 
         // Parent loader priority is a class loader setting that Jetty accepts.
         // By default Jetty will behave like most web containers in that it will
@@ -146,9 +146,9 @@ public class JettyFactory {
 
         // Web app location
         final Resource baseResource = Resource.newClassPathResource(webAppContextConfig.resourceBase());
-        final URI location = baseResource.getURI();
+        final URI baseResourceLocation = baseResource.getURI();
         webApp.setBaseResource(baseResource);
-        logger.debug("Base resource URI: {}.", location);
+        logger.debug("Base resource URI: {}.", baseResourceLocation);
 
 
         // AnntationConfiguration class scans annotations via its scanForAnnotations(WebAppContext) method.
@@ -161,8 +161,8 @@ public class JettyFactory {
         // (and/or "target/classes" and "target/test-classes") directory for annotations
         String warpath = null;
 
-        if("jar".equals(location.getScheme())) {
-            String s = FileUtil.toURL(location).getPath();
+        if("jar".equals(baseResourceLocation.getScheme())) {
+            final String s = FileUtil.toURL(baseResourceLocation).getPath();
             warpath = Splitter.on('!').trimResults().splitToList(s).get(0); // remove  e.g. "!/webapp"
             webApp.setWar(warpath);
         }
