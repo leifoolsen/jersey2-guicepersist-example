@@ -49,6 +49,9 @@ public class UserResourceTest {
         Client c = ClientBuilder.newClient();
         target = c.target(server.getURI()).path(ApplicationModel.APPLICATION_PATH);
 
+        // Client interceptor to deflate GZIP'ed content on client side
+        //c.register(GZIPReaderInterceptor.class);
+
         User alice = SampleDomain.users().get(SampleDomain.ALICE);
         target.path(UserResource.RESOURCE_PATH)
                 .request(MediaType.APPLICATION_JSON_TYPE)
