@@ -13,7 +13,7 @@ public final class SneakyThrow {
     private SneakyThrow() {
     }
 
-    public static void propagate(Throwable t) {
+    public static void exception(Throwable t) {
         SneakyThrow.<Error>sneakyThrow2(t);
     }
 

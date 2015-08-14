@@ -51,7 +51,7 @@ public class FileUtil {
             return url.toURI();
         }
         catch (URISyntaxException e) {
-            SneakyThrow.propagate(e);
+            SneakyThrow.exception(e);
             throw new RuntimeException(e); // Should not happen
         }
     }
@@ -61,7 +61,7 @@ public class FileUtil {
             return uri.toURL();
         }
         catch (MalformedURLException e) {
-            SneakyThrow.propagate(e);
+            SneakyThrow.exception(e);
             throw new RuntimeException(e); // Should not happen
         }
     }

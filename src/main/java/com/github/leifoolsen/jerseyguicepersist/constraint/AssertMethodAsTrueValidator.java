@@ -24,7 +24,7 @@ public class AssertMethodAsTrueValidator implements ConstraintValidator<AssertMe
             Method validate = clazz.getMethod(methodName);
             return (Boolean) validate.invoke(object);
         } catch (Throwable t) {
-            SneakyThrow.propagate(t);
+            SneakyThrow.exception(t);
         }
         return false;
     }

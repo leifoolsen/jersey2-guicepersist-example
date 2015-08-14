@@ -80,7 +80,7 @@ public class JettyFactory {
                 try {
                     Files.createDirectory(logPath);
                 } catch (IOException e) {
-                    SneakyThrow.propagate(e);
+                    SneakyThrow.exception(e);
                 }
             }
             NCSARequestLog requestLog = new NCSARequestLog(logPath.resolve(JettyConfig.ServerConfig.ACCESS_LOG_FILE).normalize().toString());
@@ -198,7 +198,7 @@ public class JettyFactory {
             //server.dump(System.err);
         }
         catch (Exception e) {
-            SneakyThrow.propagate(e);
+            SneakyThrow.exception(e);
         }
         logger.info("Jetty started at: " + server.getURI());
     }
@@ -213,7 +213,7 @@ public class JettyFactory {
             server.join();
         }
         catch (Exception e) {
-            SneakyThrow.propagate(e);
+            SneakyThrow.exception(e);
         }
         logger.debug("Jetty stopped!");
     }

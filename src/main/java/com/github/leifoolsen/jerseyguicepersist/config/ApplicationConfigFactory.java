@@ -104,7 +104,7 @@ public class ApplicationConfigFactory {
             return cp.getTopLevelClasses("org.junit").size() > 0;
         }
         catch (Exception e) {
-            SneakyThrow.propagate(e);
+            SneakyThrow.exception(e);
             return false; // Should never happen
         }
 
