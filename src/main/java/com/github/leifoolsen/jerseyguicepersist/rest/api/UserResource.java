@@ -2,6 +2,7 @@ package com.github.leifoolsen.jerseyguicepersist.rest.api;
 
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.repository.UserRepository;
+import com.github.leifoolsen.jerseyguicepersist.rest.interceptor.Compress;
 import com.google.common.base.MoreObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ public class UserResource {
     }
 
     @GET
+    @Compress
     public Response allUsers(@QueryParam("user") final String user) {
 
         List<User> users = userRepository.findByName(MoreObjects.firstNonNull(user, "") + "%");

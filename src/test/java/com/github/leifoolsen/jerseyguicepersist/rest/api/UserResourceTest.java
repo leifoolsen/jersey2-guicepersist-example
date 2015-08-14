@@ -5,6 +5,7 @@ import com.github.leifoolsen.jerseyguicepersist.config.ApplicationConfigFactory;
 import com.github.leifoolsen.jerseyguicepersist.domain.User;
 import com.github.leifoolsen.jerseyguicepersist.embeddedjetty.JettyFactory;
 import com.github.leifoolsen.jerseyguicepersist.rest.application.ApplicationModel;
+import com.github.leifoolsen.jerseyguicepersist.rest.interceptor.GZIPReaderInterceptor;
 import com.github.leifoolsen.jerseyguicepersist.sampledata.SampleDomain;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
@@ -16,14 +17,18 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -47,10 +52,10 @@ public class UserResourceTest {
 
         // create the client
         Client c = ClientBuilder.newClient();
-        target = c.target(server.getURI()).path(ApplicationModel.APPLICATION_PATH);
-
         // Client interceptor to deflate GZIP'ed content on client side
-        //c.register(GZIPReaderInterceptor.class);
+        c.register(GZIPReaderInterceptor.class);
+
+        target = c.target(server.getURI()).path(ApplicationModel.APPLICATION_PATH);
 
         User alice = SampleDomain.users().get(SampleDomain.ALICE);
         target.path(UserResource.RESOURCE_PATH)
@@ -80,6 +85,7 @@ public class UserResourceTest {
                 .path("users")
                 .path(id)
                 .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
                 .get();
 
         assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
@@ -95,6 +101,7 @@ public class UserResourceTest {
                 .path("users")
                 .queryParam("user", "S%")
                 .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
                 .get();
 
         assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
@@ -109,9 +116,47 @@ public class UserResourceTest {
                 .path("users")
                 .path("test-unsupported-exception")
                 .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
                 .get();
 
         assertThat(response.getStatus(), equalTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+    }
+
+    @Test
+    public void headersShouldContainContentEncodingGZipAndContentTypeUTF8() {
+        final Response response = target
+                .path("users")
+                .queryParam("user", "S%")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                .get();
+
+        assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+
+        List<Object> objects = response.getHeaders().get("Content-Encoding");
+        assertThat(objects, is(notNullValue()));
+        assertThat(objects.toString(), containsString("gzip"));
+
+        objects = response.getHeaders().get("Content-Type");
+        assertThat(objects, is(notNullValue()));
+        String s = objects.toString();
+        assertThat(s, containsString("utf-8"));
+    }
+
+
+    @Test
+    public void responseShouldNotBeCompressed() {
+        String id = SampleDomain.users().get(SampleDomain.ALICE).getId();
+        final Response response = target
+                .path("users")
+                .path(id)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                .get();
+
+        assertThat(response.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+        List<Object> objects = response.getHeaders().get("Content-Encoding");
+        assertThat(objects, is(nullValue()));
     }
 
     @Test

@@ -27,7 +27,9 @@ import java.util.zip.GZIPOutputStream;
 
 @Provider  // => Automatically discovered by the JAX-RS runtime during a provider scanning phase.
 
-//@Compress
+@Compress  // => Only resource methods annotated with @Compress will return compressed response
+           // => Remove this @Compress annotation if you want all responses compressed
+
 public class GZIPWriterInterceptor implements WriterInterceptor {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
