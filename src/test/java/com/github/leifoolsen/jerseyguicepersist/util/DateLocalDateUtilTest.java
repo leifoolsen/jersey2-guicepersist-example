@@ -3,6 +3,7 @@ package com.github.leifoolsen.jerseyguicepersist.util;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -64,5 +66,23 @@ public class DateLocalDateUtilTest {
         date = "2015-07-20T13:14:15Z";
         d = sdf.parse(date);
         assertThat(d, is(DateLocalDateUtil.stringToDate(date)));
+    }
+
+    @Test
+    public void takeIntoAccountTheTz() throws ParseException {
+
+        // Given
+        DateFormat givenFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        String givenDate = "2015-07-20T22:00:00.000Z";
+
+        // When
+        Date date = givenFormat.parse(givenDate);
+
+        // Then
+        DateFormat expectedFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        TimeZone ect = TimeZone.getTimeZone("Europe/Paris");
+        expectedFormat.setTimeZone(ect);
+        String expectedDate = "2015-07-21 00:00:00";
+        assertThat(expectedFormat.format(date), is(expectedDate));
     }
 }
