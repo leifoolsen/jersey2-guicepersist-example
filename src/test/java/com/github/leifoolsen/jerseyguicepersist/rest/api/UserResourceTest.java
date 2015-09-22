@@ -111,18 +111,6 @@ public class UserResourceTest {
     }
 
     @Test
-    public void unhandeledExceptionShouldReturn_INTERNAL_SERVER_ERROR() {
-        final Response response = target
-                .path("users")
-                .path("test-unsupported-exception")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
-                .get();
-
-        assertThat(response.getStatus(), equalTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
-    }
-
-    @Test
     public void headersShouldContainContentEncodingGZipAndContentTypeUTF8() {
         final Response response = target
                 .path("users")

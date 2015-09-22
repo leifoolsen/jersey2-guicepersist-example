@@ -77,12 +77,4 @@ public class UserResource {
     public User findById(@PathParam("id") final String id) {
         return userRepository.findById(id);
     }
-
-    @GET
-    @Path("test-unsupported-exception")
-    public Object unsupportedException() {
-        // The GenericExceptionMapper class should catch this exception and return
-        // a Response.Status.INTERNAL_SERVER_ERROR status to the client
-        throw new UnsupportedOperationException("UNSUPPORTED!!!");
-    }
 }

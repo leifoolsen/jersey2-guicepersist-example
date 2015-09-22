@@ -172,10 +172,7 @@ public class JettyFactory {
             final Path testClassesPath = FileUtil.testClassesPath();
             warpath = Joiner.on(";")
                     .skipNulls()
-                    .join(warpath,
-                            classesPath.toAbsolutePath(),
-                            testClassesPath != null ? testClassesPath.toAbsolutePath() : null
-                    );
+                    .join(warpath, endPathWithSlash(classesPath), endPathWithSlash(testClassesPath));
         }
 
         if(warpath != null) {
@@ -188,6 +185,15 @@ public class JettyFactory {
         return webApp;
     }
 
+    private static String endPathWithSlash(final Path p) {
+        if(p == null) {
+            return null;
+        }
+        return p.toAbsolutePath().toString().endsWith("/")
+                ? p.toAbsolutePath().toString()
+                : p.toAbsolutePath().toString() + "/";
+
+    }
 
     /**
      * Start embedded Jetty server.

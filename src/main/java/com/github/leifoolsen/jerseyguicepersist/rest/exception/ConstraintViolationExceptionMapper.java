@@ -3,6 +3,7 @@ package com.github.leifoolsen.jerseyguicepersist.rest.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -12,19 +13,19 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 //@Priority(Priorities.USER)
-public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
+public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private UriInfo uriInfo; // actual uri info provided by parent resource (threadsafe)
 
-    public GenericExceptionMapper(@Context UriInfo uriInfo) {
+    public ConstraintViolationExceptionMapper(@Context UriInfo uriInfo) {
         this.uriInfo = uriInfo;
-        logger.debug(this.getClass().getSimpleName() + " provider created");
     }
 
     @Override
-    public Response toResponse(Throwable t) {
-        ErrorMessage errorMessage = ErrorMessage.with(t, uriInfo).build();
+    public Response toResponse(ConstraintViolationException exception) {
+
+        ErrorMessage errorMessage = ErrorMessage.with(exception, uriInfo).build();
 
         logger.debug(errorMessage.toString());
 
@@ -36,5 +37,3 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
                 .build();
     }
 }
-
-
